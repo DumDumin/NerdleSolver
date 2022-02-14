@@ -222,5 +222,33 @@ namespace Solver.Tests
             
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Test]
+        public void Given_CorrectOperatorsAtWrongPlace_When_Compare_Then_Return_CorrectFeedback()
+        {
+            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
+            List<long> numbersTwo = new List<long>() { 4, 2, 4, 2 };
+            List<Operator> operatorsOne = new List<Operator>() { Operator.Divide, Operator.Multiply, Operator.Equal };
+            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            Equation equationOne = new Equation(numbersOne, operatorsOne);
+            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+
+            EquationComparison expected = new EquationComparison(
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct
+                },
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.WrongPlace,
+                    ComparisonStatus.WrongPlace,
+                    ComparisonStatus.Correct
+                }
+            );
+            var result = equationOne.Compare(equationTwo);
+            
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }
