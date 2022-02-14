@@ -84,5 +84,36 @@ namespace Solver
 
             return result;
         }
+
+        public EquationComparison Compare(Equation equationTwo)
+        {
+            var numberResults = new List<ComparisonStatus>(numbers.Count);
+            for (int i = 0; i < equationTwo.numbers.Count; i++)
+            {
+                if(equationTwo.numbers[i] == numbers[i])
+                {
+                    numberResults.Add(ComparisonStatus.Correct);
+                }
+                else
+                {
+                    numberResults.Add(ComparisonStatus.False);
+                }
+            }
+
+            var operatorResults = new List<ComparisonStatus>(operators.Count);
+            for (int i = 0; i < equationTwo.operators.Count; i++)
+            {
+                if(equationTwo.operators[i] == operators[i])
+                {
+                    operatorResults.Add(ComparisonStatus.Correct);
+                }
+                else
+                {
+                    operatorResults.Add(ComparisonStatus.False);
+                }
+            }
+
+            return new EquationComparison(numberResults, operatorResults);
+        }
     }
 }

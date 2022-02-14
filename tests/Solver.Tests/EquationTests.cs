@@ -142,7 +142,7 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_EqualEquations_When_Compare_Then_Return_True()
+        public void Given_EqualEquations_When_Equals_Then_Return_True()
         {
             List<long> numbersOne = new List<long>() { 4, 2, 8, 1 };
             List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
@@ -155,7 +155,7 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_NotEqualEquations_When_Compare_Then_Return_False()
+        public void Given_NotEqualEquations_When_Equals_Then_Return_False()
         {
             List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
             List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
@@ -165,6 +165,62 @@ namespace Solver.Tests
             Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
 
             equationOne.Equals(equationTwo).Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_NotEqualEquations_When_Compare_Then_Return_CorrectFeedback()
+        {
+            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
+            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
+            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            Equation equationOne = new Equation(numbersOne, operatorsOne);
+            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+
+            EquationComparison expected = new EquationComparison(
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.False,
+                    ComparisonStatus.False
+                },
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct
+                }
+            );
+            var result = equationOne.Compare(equationTwo);
+            
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Given_CorrectNumberAtWrongPlace_When_Compare_Then_Return_CorrectFeedback()
+        {
+            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
+            List<long> numbersTwo = new List<long>() { 4, 2, 2, 4 };
+            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            Equation equationOne = new Equation(numbersOne, operatorsOne);
+            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+
+            EquationComparison expected = new EquationComparison(
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.WrongPlace,
+                    ComparisonStatus.WrongPlace
+                },
+                new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct
+                }
+            );
+            var result = equationOne.Compare(equationTwo);
+            
+            result.Should().BeEquivalentTo(expected);
         }
     }
 }
