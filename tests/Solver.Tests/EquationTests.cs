@@ -140,5 +140,31 @@ namespace Solver.Tests
 
             equation.Validate().Should().BeTrue();
         }
+
+        [Test]
+        public void Given_EqualEquations_When_Compare_Then_Return_True()
+        {
+            List<long> numbersOne = new List<long>() { 4, 2, 8, 1 };
+            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
+            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            Equation equationOne = new Equation(numbersOne, operatorsOne);
+            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+
+            equationOne.Equals(equationTwo).Should().BeTrue();
+        }
+
+        [Test]
+        public void Given_NotEqualEquations_When_Compare_Then_Return_False()
+        {
+            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
+            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
+            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
+            Equation equationOne = new Equation(numbersOne, operatorsOne);
+            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+
+            equationOne.Equals(equationTwo).Should().BeFalse();
+        }
     }
 }

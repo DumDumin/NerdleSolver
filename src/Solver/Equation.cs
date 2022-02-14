@@ -15,6 +15,23 @@ namespace Solver
             this.operators = operators;
         }
 
+        public override bool Equals(object obj)
+        {            
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            
+            Equation e = (Equation) obj;
+
+            return e.operators.SequenceEqual(operators) && e.numbers.SequenceEqual(numbers);
+        }
+        
+        public override int GetHashCode()
+        {
+            return operators.GetHashCode() + numbers.GetHashCode();
+        }
+
         public bool Validate()
         {
             if (operators.Count(o => o == Operator.Equal) == 1)
