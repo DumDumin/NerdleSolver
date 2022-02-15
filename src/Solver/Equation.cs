@@ -142,66 +142,30 @@ namespace Solver
 
         public EquationComparison Compare(Equation equation)
         {
-            List<ComparisonStatus> numberResults = CompareNumbers(equation);
-            List<ComparisonStatus> operatorResults = CompareOperators(equation);
-
-            return new EquationComparison(numberResults, operatorResults);
-        }
-
-        private List<ComparisonStatus> CompareOperators(Equation equationTwo)
-        {
-            var operatorResults = new List<ComparisonStatus>(operators.Count);
-            var backupOperators = new List<Operator>();
-            for (int i = 0; i < equationTwo.operators.Count; i++)
+            var results = new List<ComparisonStatus>(components.Count);
+            var backup = new List<EquationComponent>();
+            for (int i = 0; i < equation.components.Count; i++)
             {
-                if (equationTwo.operators[i] == operators[i])
+                if (equation.components[i] == components[i])
                 {
-                    operatorResults.Add(ComparisonStatus.Correct);
+                    results.Add(ComparisonStatus.Correct);
                 }
                 else
                 {
-                    operatorResults.Add(ComparisonStatus.False);
-                    backupOperators.Add(operators[i]);
+                    results.Add(ComparisonStatus.False);
+                    backup.Add(components[i]);
                 }
             }
-            for (int i = 0; i < operatorResults.Count; i++)
+            for (int i = 0; i < results.Count; i++)
             {
-                if (operatorResults[i] == ComparisonStatus.False && backupOperators.Contains(equationTwo.operators[i]))
+                if (results[i] == ComparisonStatus.False && backup.Contains(equation.components[i]))
                 {
-                    operatorResults[i] = ComparisonStatus.WrongPlace;
-                    backupOperators.Remove(equationTwo.operators[i]);
+                    results[i] = ComparisonStatus.WrongPlace;
+                    backup.Remove(equation.components[i]);
                 }
             }
 
-            return operatorResults;
-        }
-
-        private List<ComparisonStatus> CompareNumbers(Equation equation)
-        {
-            var numberResults = new List<ComparisonStatus>(numbers.Count);
-            var backupNumbers = new List<long>();
-            for (int i = 0; i < equation.numbers.Count; i++)
-            {
-                if (equation.numbers[i] == numbers[i])
-                {
-                    numberResults.Add(ComparisonStatus.Correct);
-                }
-                else
-                {
-                    numberResults.Add(ComparisonStatus.False);
-                    backupNumbers.Add(numbers[i]);
-                }
-            }
-            for (int i = 0; i < numberResults.Count; i++)
-            {
-                if (numberResults[i] == ComparisonStatus.False && backupNumbers.Contains(equation.numbers[i]))
-                {
-                    numberResults[i] = ComparisonStatus.WrongPlace;
-                    backupNumbers.Remove(equation.numbers[i]);
-                }
-            }
-
-            return numberResults;
+            return new EquationComparison(equation, results);
         }
     }
 }

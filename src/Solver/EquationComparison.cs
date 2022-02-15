@@ -4,17 +4,12 @@ namespace Solver
 {
     public class EquationComparison
     {
-        private readonly List<ComparisonStatus> numbers;
-        private readonly List<ComparisonStatus> operators;
-
-        public List<ComparisonStatus> Operators => operators;
-
-        public List<ComparisonStatus> Numbers => numbers;
-
-        public EquationComparison(List<ComparisonStatus> numbers, List<ComparisonStatus> operators)
+        public Equation Equation { get; }
+        public List<ComparisonStatus> Comparison { get; }
+        public EquationComparison(Equation equation, List<ComparisonStatus> comparison)
         {
-            this.numbers = numbers;
-            this.operators = operators;
+            Equation = equation;
+            Comparison = comparison;
         }
     }
 }

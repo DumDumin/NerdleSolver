@@ -193,22 +193,18 @@ namespace Solver.Tests
             Equation equationOne = new Equation(componentsOne);
             Equation equationTwo = new Equation(componentsTwo);
 
-            EquationComparison expected = new EquationComparison(
-                new List<ComparisonStatus>() {
+            var expected = new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
                     ComparisonStatus.False,
+                    ComparisonStatus.Correct,
                     ComparisonStatus.False
-                },
-                new List<ComparisonStatus>() {
-                    ComparisonStatus.Correct,
-                    ComparisonStatus.Correct,
-                    ComparisonStatus.Correct
-                }
-            );
+                };
             var result = equationOne.Compare(equationTwo);
             
-            result.Should().BeEquivalentTo(expected);
+            result.Comparison.Should().ContainInOrder(expected);
         }
 
         [Test]
@@ -222,22 +218,19 @@ namespace Solver.Tests
             Equation equationOne = new Equation(componentsOne);
             Equation equationTwo = new Equation(componentsTwo);
 
-            EquationComparison expected = new EquationComparison(
-                new List<ComparisonStatus>() {
+            var expected = new List<ComparisonStatus>() {
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
                     ComparisonStatus.WrongPlace,
+                    ComparisonStatus.Correct,
                     ComparisonStatus.WrongPlace
-                },
-                new List<ComparisonStatus>() {
-                    ComparisonStatus.Correct,
-                    ComparisonStatus.Correct,
-                    ComparisonStatus.Correct
-                }
-            );
+                };
+            
             var result = equationOne.Compare(equationTwo);
             
-            result.Should().BeEquivalentTo(expected);
+            result.Comparison.Should().ContainInOrder(expected);
         }
 
         [Test]
@@ -251,22 +244,19 @@ namespace Solver.Tests
             Equation equationOne = new Equation(componentsOne);
             Equation equationTwo = new Equation(componentsTwo);
 
-            EquationComparison expected = new EquationComparison(
-                new List<ComparisonStatus>() {
+            var expected = new List<ComparisonStatus>() {
                     ComparisonStatus.Correct,
+                    ComparisonStatus.WrongPlace,
+                    ComparisonStatus.Correct,
+                    ComparisonStatus.WrongPlace,
                     ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
                     ComparisonStatus.Correct
-                },
-                new List<ComparisonStatus>() {
-                    ComparisonStatus.WrongPlace,
-                    ComparisonStatus.WrongPlace,
-                    ComparisonStatus.Correct
-                }
-            );
+                };
+
             var result = equationOne.Compare(equationTwo);
             
-            result.Should().BeEquivalentTo(expected);
+            result.Comparison.Should().ContainInOrder(expected);
         }
     }
 }
