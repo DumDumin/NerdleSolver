@@ -1,32 +1,87 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Solver.EquationComponent;
 
 namespace Solver
 {
     public class Equation
     {
-        private IList<long> numbers;
-        private IList<Operator> operators;
+        private List<long> numbers;
+        private List<Operator> operators;
+        private readonly IList<EquationComponent> components;
 
-        public Equation(IList<long> numbers, IList<Operator> operators)
+        public Equation(IList<EquationComponent> components)
         {
-            this.numbers = numbers;
-            this.operators = operators;
+            this.components = components;
+
+            this.numbers = new List<long>();
+            this.operators = new List<Operator>();
+
+            TranslateComponents();
+        }
+
+        private void TranslateComponents()
+        {
+            var componentsCopy = components.ToList();
+
+            while(componentsCopy.Count > 0)
+            {
+                var digits = componentsCopy.TakeWhile(c => !IsOperator(c)).ToList();
+                var number = GetNumberFromDigits(digits);
+                numbers.Add(number);
+                componentsCopy.RemoveRange(0, digits.Count);
+
+                if(componentsCopy.Count > 0)
+                {
+                    var opComp = componentsCopy[0];
+                    var op = GetOperatorFromEquationComponent(opComp);
+                    operators.Add(op);
+                    componentsCopy.RemoveAt(0);
+                }
+            }
+        }
+
+        private bool IsOperator(EquationComponent component)
+        {
+            if (component == Equal || component == Add || component == Substract || component == Multiply || component == Divide)
+                return true;
+            else
+                return false;
+        }
+
+        private long GetNumberFromDigits(List<EquationComponent> digits)
+        {
+            long result = 0;
+            for (int i = 0; i < digits.Count; i++)
+            {
+                result += (long)digits[i] * (long)Math.Pow(10, digits.Count - 1 - i);
+            }
+            return result;
+        }
+
+        private Operator GetOperatorFromEquationComponent(EquationComponent comp)
+        {
+            if(comp == Equal) return Operator.Equal;
+            if(comp == Add) return Operator.Add;
+            if(comp == Substract) return Operator.Substract;
+            if(comp == Multiply) return Operator.Multiply;
+            if(comp == Divide) return Operator.Divide;
+            else throw new NotImplementedException($"{comp} is not an operator");
         }
 
         public override bool Equals(object obj)
-        {            
+        {
             if (obj == null || GetType() != obj.GetType())
             {
                 return false;
             }
-            
-            Equation e = (Equation) obj;
+
+            Equation e = (Equation)obj;
 
             return e.operators.SequenceEqual(operators) && e.numbers.SequenceEqual(numbers);
         }
-        
+
         public override int GetHashCode()
         {
             return operators.GetHashCode() + numbers.GetHashCode();
@@ -45,7 +100,7 @@ namespace Solver
                     return true;
                 }
             }
-        
+
             return false;
         }
 
@@ -85,10 +140,10 @@ namespace Solver
             return result;
         }
 
-        public EquationComparison Compare(Equation equationTwo)
+        public EquationComparison Compare(Equation equation)
         {
-            List<ComparisonStatus> numberResults = CompareNumbers(equationTwo);
-            List<ComparisonStatus> operatorResults = CompareOperators(equationTwo);
+            List<ComparisonStatus> numberResults = CompareNumbers(equation);
+            List<ComparisonStatus> operatorResults = CompareOperators(equation);
 
             return new EquationComparison(numberResults, operatorResults);
         }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 using Solver;
+using static Solver.EquationComponent;
 
 namespace Solver.Tests
 {
@@ -15,9 +16,8 @@ namespace Solver.Tests
         [Test]
         public void Given_NotAllowedEquation_When_Validate_Then_ReturnFalse()
         {
-            List<long> numbers = new List<long>();
-            List<Operator> operators = new List<Operator>();
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>();
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeFalse();
         }
@@ -25,19 +25,31 @@ namespace Solver.Tests
         [Test]
         public void Given_MultipleEqualOperators_When_Validate_Then_ReturnFalse()
         {
-            List<long> numbers = new List<long>() { 1, 1, 1 };
-            List<Operator> operators = new List<Operator>() { Operator.Equal, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                One, Equal, One, Equal, One
+            };
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeFalse();
         }
 
         [Test]
+        public void Given_SixPlusSevenEqualsThirteen_When_Validate_Then_Return_True()
+        {
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Six, Add, Seven, Equal, One, Three};
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeTrue();
+        }
+
+        [Test]
         public void Given_AllowedEquation_When_Validate_Then_ReturnTrue()
         {
-            List<long> numbers = new List<long>() { 1, 1 };
-            List<Operator> operators = new List<Operator>() { Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Equal, One};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -45,9 +57,9 @@ namespace Solver.Tests
         [Test]
         public void Given_NotAllowedEquation_When_Validate_Then_Return_False()
         {
-            List<long> numbers = new List<long>() { 1, 2 };
-            List<Operator> operators = new List<Operator>() { Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Equal, Two};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeFalse();
         }
@@ -55,9 +67,9 @@ namespace Solver.Tests
         [Test]
         public void Given_OnePlusOneEqualsTwo_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 1, 1, 2 };
-            List<Operator> operators = new List<Operator>() { Operator.Add, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Add, One, Equal, Two};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -65,9 +77,9 @@ namespace Solver.Tests
         [Test]
         public void Given_OneMiunsOneEqualsZero_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 1, 1, 0 };
-            List<Operator> operators = new List<Operator>() { Operator.Substract, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Substract, One, Equal, Zero};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -75,9 +87,9 @@ namespace Solver.Tests
         [Test]
         public void Given_OnePlusOnePlusOneEqualsThree_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 1, 1, 1, 3 };
-            List<Operator> operators = new List<Operator>() { Operator.Add, Operator.Add, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Add, One, Add, One, Equal, Three};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -85,9 +97,9 @@ namespace Solver.Tests
         [Test]
         public void Given_OnePlusOneEqualsOnePlusOne_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 1, 1, 1, 1 };
-            List<Operator> operators = new List<Operator>() { Operator.Add, Operator.Equal, Operator.Add };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Add, One, Equal, One, Add, One};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -95,18 +107,19 @@ namespace Solver.Tests
         [Test]
         public void Given_TwoTimesTwoEqualsFour_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 2, 2, 4 };
-            List<Operator> operators = new List<Operator>() { Operator.Multiply, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Two, Multiply, Two, Equal, Four};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
+
         [Test]
         public void Given_TwoTimesTwoTimesTwoEqualsEight_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 2, 2, 2, 8 };
-            List<Operator> operators = new List<Operator>() { Operator.Multiply, Operator.Multiply, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Two, Multiply, Two, Multiply, Two, Equal, Eight};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -114,9 +127,9 @@ namespace Solver.Tests
         [Test]
         public void Given_OnePlusTwoTimesTwoEqualsFive_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 1, 2, 2, 5 };
-            List<Operator> operators = new List<Operator>() { Operator.Add, Operator.Multiply, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Add, Two, Multiply, Two, Equal, Five};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -124,9 +137,9 @@ namespace Solver.Tests
         [Test]
         public void Given_TwoTimesTwoPlusTwoEqualsSix_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 2, 2, 2, 6 };
-            List<Operator> operators = new List<Operator>() { Operator.Multiply, Operator.Add, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Two, Multiply, Two, Add, Two, Equal, Six};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -134,9 +147,9 @@ namespace Solver.Tests
         [Test]
         public void Given_FourTimesTwoDividedByEightEqualsOne_When_Validate_Then_Return_True()
         {
-            List<long> numbers = new List<long>() { 4, 2, 8, 1 };
-            List<Operator> operators = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equation = new Equation(numbers, operators);
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Eight, Equal, One};
+            Equation equation = new Equation(components);
 
             equation.Validate().Should().BeTrue();
         }
@@ -144,12 +157,13 @@ namespace Solver.Tests
         [Test]
         public void Given_EqualEquations_When_Equals_Then_Return_True()
         {
-            List<long> numbersOne = new List<long>() { 4, 2, 8, 1 };
-            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
-            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equationOne = new Equation(numbersOne, operatorsOne);
-            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+            List<EquationComponent> componentsOne = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Eight, Equal, One};
+            List<EquationComponent> componentsTwo = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Eight, Equal, One};
+
+            Equation equationOne = new Equation(componentsOne);
+            Equation equationTwo = new Equation(componentsTwo);
 
             equationOne.Equals(equationTwo).Should().BeTrue();
         }
@@ -157,12 +171,13 @@ namespace Solver.Tests
         [Test]
         public void Given_NotEqualEquations_When_Equals_Then_Return_False()
         {
-            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
-            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
-            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equationOne = new Equation(numbersOne, operatorsOne);
-            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+            List<EquationComponent> componentsOne = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Four, Equal, Two};
+            List<EquationComponent> componentsTwo = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Eight, Equal, One};
+
+            Equation equationOne = new Equation(componentsOne);
+            Equation equationTwo = new Equation(componentsTwo);
 
             equationOne.Equals(equationTwo).Should().BeFalse();
         }
@@ -170,12 +185,13 @@ namespace Solver.Tests
         [Test]
         public void Given_NotEqualEquations_When_Compare_Then_Return_CorrectFeedback()
         {
-            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
-            List<long> numbersTwo = new List<long>() { 4, 2, 8, 1 };
-            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equationOne = new Equation(numbersOne, operatorsOne);
-            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+            List<EquationComponent> componentsOne = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Four, Equal, Two};
+            List<EquationComponent> componentsTwo = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Eight, Equal, One};
+
+            Equation equationOne = new Equation(componentsOne);
+            Equation equationTwo = new Equation(componentsTwo);
 
             EquationComparison expected = new EquationComparison(
                 new List<ComparisonStatus>() {
@@ -198,12 +214,13 @@ namespace Solver.Tests
         [Test]
         public void Given_CorrectNumberAtWrongPlace_When_Compare_Then_Return_CorrectFeedback()
         {
-            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
-            List<long> numbersTwo = new List<long>() { 4, 2, 2, 4 };
-            List<Operator> operatorsOne = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equationOne = new Equation(numbersOne, operatorsOne);
-            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+            List<EquationComponent> componentsOne = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Four, Equal, Two};
+            List<EquationComponent> componentsTwo = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Two, Equal, Four};
+
+            Equation equationOne = new Equation(componentsOne);
+            Equation equationTwo = new Equation(componentsTwo);
 
             EquationComparison expected = new EquationComparison(
                 new List<ComparisonStatus>() {
@@ -226,12 +243,13 @@ namespace Solver.Tests
         [Test]
         public void Given_CorrectOperatorsAtWrongPlace_When_Compare_Then_Return_CorrectFeedback()
         {
-            List<long> numbersOne = new List<long>() { 4, 2, 4, 2 };
-            List<long> numbersTwo = new List<long>() { 4, 2, 4, 2 };
-            List<Operator> operatorsOne = new List<Operator>() { Operator.Divide, Operator.Multiply, Operator.Equal };
-            List<Operator> operatorsTwo = new List<Operator>() { Operator.Multiply, Operator.Divide, Operator.Equal };
-            Equation equationOne = new Equation(numbersOne, operatorsOne);
-            Equation equationTwo = new Equation(numbersTwo, operatorsTwo);
+            List<EquationComponent> componentsOne = new List<EquationComponent>(){
+                Four, Divide, Two, Multiply, Four, Equal, Two};
+            List<EquationComponent> componentsTwo = new List<EquationComponent>(){
+                Four, Multiply, Two, Divide, Four, Equal, Two};
+
+            Equation equationOne = new Equation(componentsOne);
+            Equation equationTwo = new Equation(componentsTwo);
 
             EquationComparison expected = new EquationComparison(
                 new List<ComparisonStatus>() {
