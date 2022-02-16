@@ -17,12 +17,25 @@ namespace Solver.Tests
         }
 
         [Test]
+        public void Given_DivideByZero_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Divide, Zero, Equal, One};
+            Equation.ValidateSyntax(components).Should().BeFalse();
+        }
+        [Test]
+        public void Given_DivideByZeroTwoTimes_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Divide, One, Divide, Zero, Equal, One};
+            Equation.ValidateSyntax(components).Should().BeFalse();
+        }
+
+        [Test]
         public void Given_EquationStartsWithMultiply_When_Validate_Then_ReturnFalse()
         {
-            List<EquationComponent> components = new List<EquationComponent>()
-            {
-                Multiply, One, Equal, One
-            };
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Multiply, One, Equal, One};
             Equation.ValidateSyntax(components).Should().BeFalse();
         }
         [Test]
@@ -71,6 +84,16 @@ namespace Solver.Tests
             List<EquationComponent> components = new List<EquationComponent>()
             {
                 Zero, Add, Equal, Zero
+            };
+            Equation.ValidateSyntax(components).Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_OperatorBehindOfEqual_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Zero, Equal, Add, Zero
             };
             Equation.ValidateSyntax(components).Should().BeFalse();
         }
