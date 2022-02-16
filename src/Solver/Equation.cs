@@ -34,10 +34,11 @@ namespace Solver
 
                 if(componentsCopy.Count > 0)
                 {
-                    var opComp = componentsCopy[0];
+                    var opsComp = componentsCopy.TakeWhile(c => IsOperator(c)).ToList();
+                    var opComp = CombineOperators(opsComp);
                     var op = GetOperatorFromEquationComponent(opComp);
                     operators.Add(op);
-                    componentsCopy.RemoveAt(0);
+                    componentsCopy.RemoveRange(0, opsComp.Count);
                 }
             }
         }
@@ -58,6 +59,18 @@ namespace Solver
                 result += (long)digits[i] * (long)Math.Pow(10, digits.Count - 1 - i);
             }
             return result;
+        }
+
+        private EquationComponent CombineOperators(List<EquationComponent> operators)
+        {
+            // This method can only be called from a validated Equation
+            if(operators[0] == Multiply) return Multiply;
+            if(operators[0] == Divide) return Divide;
+            if(operators[0] == Equal) return Equal;
+
+            if(operators.All(o => o == Add)) return Add;
+            if(operators.Count(o => o == Substract) % 2 == 1) return Substract;
+            else return Add;
         }
 
         private Operator GetOperatorFromEquationComponent(EquationComponent comp)
@@ -101,9 +114,7 @@ namespace Solver
             {
                 if (StartAndEndSignsAreAllowed())
                 {
-                    // no operator is allowed in front of the equal sign
-                    int equalIndex = components.IndexOf(EquationComponent.Equal);
-                    if (!IsOperator(components[equalIndex - 1]))
+                    if(ConsecutiveOperatorsAreAllowed())
                     {
                         return true;
                     }
@@ -114,7 +125,7 @@ namespace Solver
 
         private bool ContainsExcatlyOneEqualSign()
         {
-            return operators.Count(o => o == Operator.Equal) == 1;
+            return components.Count(o => o == Equal) == 1;
         }
 
         private bool StartAndEndSignsAreAllowed()
@@ -124,6 +135,38 @@ namespace Solver
                 components[0] != Divide &&
                 components[0] != Equal &&
                 !IsOperator(components[components.Count-1]);
+        }
+
+        private bool ConsecutiveOperatorsAreAllowed()
+        {
+            // no operator is allowed in front of the equal sign
+            int equalIndex = components.IndexOf(EquationComponent.Equal);
+            if (IsOperator(components[equalIndex - 1]))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < components.Count-1; i++)
+            {
+                if(IsOperator(components[i]) && IsOperator(components[i+1]))
+                {
+                    if(
+                        components[i] == EquationComponent.Add && components[i+1] == EquationComponent.Multiply ||
+                        components[i] == EquationComponent.Multiply && components[i+1] == EquationComponent.Add ||
+                        components[i] == EquationComponent.Substract && components[i+1] == EquationComponent.Multiply ||
+                        components[i] == EquationComponent.Multiply && components[i+1] == EquationComponent.Substract ||
+
+                        components[i] == EquationComponent.Add && components[i+1] == EquationComponent.Divide ||
+                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Add ||
+                        components[i] == EquationComponent.Substract && components[i+1] == EquationComponent.Divide ||
+                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Substract
+                    )
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private long Calculate(int startIndex, int endIndex)
