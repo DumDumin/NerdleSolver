@@ -89,11 +89,41 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_OperatorBehindOfEqual_When_Validate_Then_ReturnFalse()
+        public void Given_AddOperatorBehindOfEqual_When_Validate_Then_ReturnTrue()
         {
             EquationComponent[] components = new EquationComponent[]
             {
                 Zero, Equal, Add, Zero
+            };
+            Equation.ValidateSyntax(components).Should().BeTrue();
+        }
+
+        [Test]
+        public void Given_SubsctractOperatorBehindOfEqual_When_Validate_Then_ReturnTrue()
+        {
+            EquationComponent[] components = new EquationComponent[]
+            {
+                Zero, Equal, Substract, Zero
+            };
+            Equation.ValidateSyntax(components).Should().BeTrue();
+        }
+
+        [Test]
+        public void Given_MultiplyOperatorBehindOfEqual_When_Validate_Then_ReturnFalse()
+        {
+            EquationComponent[] components = new EquationComponent[]
+            {
+                Zero, Equal, Multiply, Zero
+            };
+            Equation.ValidateSyntax(components).Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_DivideOperatorBehindOfEqual_When_Validate_Then_ReturnFalse()
+        {
+            EquationComponent[] components = new EquationComponent[]
+            {
+                Zero, Equal, Divide, One
             };
             Equation.ValidateSyntax(components).Should().BeFalse();
         }

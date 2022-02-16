@@ -26,26 +26,58 @@ namespace Solver
             TranslateComponents();
         }
 
+        // Optimized for performance
         private void TranslateComponents()
         {
-            var componentsCopy = components.ToList();
-
-            while (componentsCopy.Count > 0)
+            int index = 0;
+            while (index < components.Length)
             {
-                var digits = componentsCopy.TakeWhile(c => !IsOperator(c)).ToList();
-                var number = GetNumberFromDigits(digits);
+                int number = GetNextNumber(ref index);
                 numbers.Add(number);
-                componentsCopy.RemoveRange(0, digits.Count);
 
-                if (componentsCopy.Count > 0)
+                if (index < components.Length)
                 {
-                    var opsComp = componentsCopy.TakeWhile(c => IsOperator(c)).ToList();
-                    var opComp = CombineOperators(opsComp);
-                    var op = GetOperatorFromEquationComponent(opComp);
+                    Operator op = GetNextOperator(ref index);
                     operators.Add(op);
-                    componentsCopy.RemoveRange(0, opsComp.Count);
                 }
             }
+        }
+
+        private Operator GetNextOperator(ref int index)
+        {
+            // TODO can this list be optimized -> maybe delete CombineOperators
+            List<EquationComponent> opsComp = new List<EquationComponent>();
+            for (int i = index; index < components.Length; index++)
+            {
+                if (IsOperator(components[index]))
+                {
+                    opsComp.Add(components[index]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            var opComp = CombineOperators(opsComp);
+            var op = GetOperatorFromEquationComponent(opComp);
+            return op;
+        }
+
+        private int GetNextNumber(ref int index)
+        {
+            int number = 0;
+            for (int i = index; index < components.Length; index++)
+            {
+                if (!IsOperator(components[index]))
+                {
+                    number = number * 10 + (int)components[index];
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return number;
         }
 
         private static bool IsOperator(EquationComponent component)
@@ -90,21 +122,13 @@ namespace Solver
 
         public bool Validate()
         {
-            try
-            {
-                int equalIndex = operators.IndexOf(Operator.Equal);
-                long leftside = Calculate(0, equalIndex);
-                long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
+            int equalIndex = operators.IndexOf(Operator.Equal);
+            long leftside = Calculate(0, equalIndex);
+            long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
 
-                if (leftside == rightside)
-                {
-                    return true;
-                }
-            }
-            catch (System.Exception)
+            if (leftside == rightside)
             {
-                // TODO probably of "divided by zero"
-                return false;
+                return true;
             }
 
             return false;
@@ -116,9 +140,9 @@ namespace Solver
             {
                 if (StartAndEndSignsAreAllowed(components))
                 {
-                    List<EquationComponent> list = components.ToList();
-                    if (ConsecutiveOperatorsAreAllowed(list))
+                    if (ConsecutiveOperatorsAreAllowed(components))
                     {
+                        List<EquationComponent> list = components.ToList();
                         if (NoDivisionByZero(list))
                         {
                             return true;
@@ -132,7 +156,7 @@ namespace Solver
         private static bool NoDivisionByZero(List<EquationComponent> components, int skip = 0)
         {
             int index = components.IndexOf(Divide, skip);
-            if(index != -1)
+            if (index != -1)
             {
                 var digits = components.Skip(index + 1).TakeWhile(c => !IsOperator(c)).ToList();
                 var number = GetNumberFromDigits(digits);
@@ -158,10 +182,10 @@ namespace Solver
             int counter = 0;
             for (int i = 0; i < components.Length; i++)
             {
-                if(components[i] == Equal) counter++;
-                if(counter == 2) return false;
+                if (components[i] == Equal) counter++;
+                if (counter == 2) return false;
             }
-            if(counter == 1) return true;
+            if (counter == 1) return true;
             else return false;
 
         }
@@ -175,20 +199,18 @@ namespace Solver
                 !IsOperator(components[components.Length - 1]);
         }
 
-        private static bool ConsecutiveOperatorsAreAllowed(List<EquationComponent> components)
+        private static bool ConsecutiveOperatorsAreAllowed(EquationComponent[] components)
         {
-            // no operator is allowed in front of the equal sign
-            int equalIndex = components.IndexOf(EquationComponent.Equal);
-            if (IsOperator(components[equalIndex - 1]) || IsOperator(components[equalIndex + 1]))
-            {
-                return false;
-            }
-
-            for (int i = 0; i < components.Count - 1; i++)
+            for (int i = 0; i < components.Length - 1; i++)
             {
                 if (IsOperator(components[i]) && IsOperator(components[i + 1]))
                 {
                     if (
+                        // no operator is allowed in front of the equal sign
+                        components[i + 1] == EquationComponent.Equal ||
+                        components[i] == EquationComponent.Equal && components[i + 1] == EquationComponent.Multiply ||
+                        components[i] == EquationComponent.Equal && components[i + 1] == EquationComponent.Divide ||
+
                         components[i] == EquationComponent.Add && components[i + 1] == EquationComponent.Multiply ||
                         components[i] == EquationComponent.Multiply && components[i + 1] == EquationComponent.Add ||
                         components[i] == EquationComponent.Substract && components[i + 1] == EquationComponent.Multiply ||
@@ -226,6 +248,8 @@ namespace Solver
 
         private long Calculate(long result, int startIndex, int endIndex)
         {
+            if (startIndex == endIndex) return result;
+
             if (operators[startIndex] == Operator.Add)
             {
                 result += Calculate(startIndex + 1, endIndex);

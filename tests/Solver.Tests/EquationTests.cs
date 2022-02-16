@@ -19,6 +19,22 @@ namespace Solver.Tests
         }
 
         [Test]
+        public void Given_MultiplyAsLastOperatorAndNotValid_When_Validate_Then_Return_False()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Five, Zero, Equal, Zero, Multiply, Zero};
+            new Equation(components).Validate().Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_MultiplyAsLastOperatorAndValid_When_Validate_Then_Return_True()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Five, Zero, Equal, One, Zero, Multiply, Five};
+            new Equation(components).Validate().Should().BeTrue();
+        }
+
+        [Test]
         public void Given_OneAddSubstractOneEqualsTwo_When_Validate_Then_Return_True()
         {
             EquationComponent[] components = new EquationComponent[] {
