@@ -13,6 +13,11 @@ namespace Solver
 
         public Equation(IList<EquationComponent> components)
         {
+            if(!ValidateSyntax(components))
+            {
+                throw new ArgumentException();
+            }
+
             this.components = components;
 
             this.numbers = new List<long>();
@@ -43,7 +48,7 @@ namespace Solver
             }
         }
 
-        private bool IsOperator(EquationComponent component)
+        private static bool IsOperator(EquationComponent component)
         {
             if (component == Equal || component == Add || component == Substract || component == Multiply || component == Divide)
                 return true;
@@ -85,36 +90,33 @@ namespace Solver
 
         public bool Validate()
         {
-            if (ValidateSyntax())
-            {
-                try
-                {  
-                    int equalIndex = operators.IndexOf(Operator.Equal);
-                    long leftside = Calculate(0, equalIndex);
-                    long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
+            try
+            {  
+                int equalIndex = operators.IndexOf(Operator.Equal);
+                long leftside = Calculate(0, equalIndex);
+                long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
 
-                    if (leftside == rightside)
-                    {
-                        return true;
-                    }
-                }
-                catch (System.Exception)
+                if (leftside == rightside)
                 {
-                    // TODO probably of "divided by zero"
-                    return false;
+                    return true;
                 }
+            }
+            catch (System.Exception)
+            {
+                // TODO probably of "divided by zero"
+                return false;
             }
 
             return false;
         }
 
-        private bool ValidateSyntax()
+        public static bool ValidateSyntax(IList<EquationComponent> components)
         {
-            if (ContainsExcatlyOneEqualSign())
+            if (ContainsExcatlyOneEqualSign(components))
             {
-                if (StartAndEndSignsAreAllowed())
+                if (StartAndEndSignsAreAllowed(components))
                 {
-                    if(ConsecutiveOperatorsAreAllowed())
+                    if(ConsecutiveOperatorsAreAllowed(components))
                     {
                         return true;
                     }
@@ -123,12 +125,12 @@ namespace Solver
             return false;
         }
 
-        private bool ContainsExcatlyOneEqualSign()
+        private static bool ContainsExcatlyOneEqualSign(IList<EquationComponent> components)
         {
             return components.Count(o => o == Equal) == 1;
         }
 
-        private bool StartAndEndSignsAreAllowed()
+        private static bool StartAndEndSignsAreAllowed(IList<EquationComponent> components)
         {
             return
                 components[0] != Multiply &&
@@ -137,7 +139,7 @@ namespace Solver
                 !IsOperator(components[components.Count-1]);
         }
 
-        private bool ConsecutiveOperatorsAreAllowed()
+        private static bool ConsecutiveOperatorsAreAllowed(IList<EquationComponent> components)
         {
             // no operator is allowed in front of the equal sign
             int equalIndex = components.IndexOf(EquationComponent.Equal);
@@ -159,7 +161,12 @@ namespace Solver
                         components[i] == EquationComponent.Add && components[i+1] == EquationComponent.Divide ||
                         components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Add ||
                         components[i] == EquationComponent.Substract && components[i+1] == EquationComponent.Divide ||
-                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Substract
+                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Substract ||
+
+                        components[i] == EquationComponent.Multiply && components[i+1] == EquationComponent.Divide ||
+                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Multiply ||
+                        components[i] == EquationComponent.Multiply && components[i+1] == EquationComponent.Multiply ||
+                        components[i] == EquationComponent.Divide && components[i+1] == EquationComponent.Divide
                     )
                     {
                         return false;

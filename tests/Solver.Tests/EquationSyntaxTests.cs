@@ -13,9 +13,7 @@ namespace Solver.Tests
         public void Given_NotAllowedEquation_When_Validate_Then_ReturnFalse()
         {
             List<EquationComponent> components = new List<EquationComponent>();
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -25,9 +23,7 @@ namespace Solver.Tests
             {
                 Multiply, One, Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
         [Test]
         public void Given_EquationStartsWithDivide_When_Validate_Then_ReturnFalse()
@@ -36,9 +32,7 @@ namespace Solver.Tests
             {
                 Divide, One, Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -48,9 +42,7 @@ namespace Solver.Tests
             {
                 Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -60,9 +52,7 @@ namespace Solver.Tests
             {
                 Add, One, Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeTrue();
+            Equation.ValidateSyntax(components).Should().BeTrue();
         }
 
         [Test]
@@ -72,9 +62,7 @@ namespace Solver.Tests
             {
                 Substract, Zero, Equal, Zero
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeTrue();
+            Equation.ValidateSyntax(components).Should().BeTrue();
         }
 
         [Test]
@@ -84,9 +72,7 @@ namespace Solver.Tests
             {
                 Zero, Add, Equal, Zero
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -96,9 +82,7 @@ namespace Solver.Tests
             {
                 One, Add, One, Equal, Two, Substract
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -108,9 +92,7 @@ namespace Solver.Tests
             {
                 One, Equal, One, Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
@@ -120,22 +102,15 @@ namespace Solver.Tests
             {
                 One, Add, Divide, One, Equal, One
             };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]
-        [Ignore("Validate must be static")]
         public void Given_MultiplyDivide_When_Validate_Then_ReturnFalse()
         {
-            List<EquationComponent> components = new List<EquationComponent>()
-            {
-                One, Multiply, Divide, One, Equal, One
-            };
-            Equation equation = new Equation(components);
-
-            equation.Validate().Should().BeFalse();
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Multiply, Divide, One, Equal, One};
+            Equation.ValidateSyntax(components).Should().BeFalse();
         }
 
         [Test]

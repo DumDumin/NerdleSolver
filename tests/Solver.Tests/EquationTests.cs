@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
@@ -8,6 +9,15 @@ namespace Solver.Tests
 {
     public class EquationTests
     {
+        [Test]
+        public void Given_NotAllowedSyntax_When_Create_Then_ThrowException()
+        {
+            List<EquationComponent> components = new List<EquationComponent>(){
+                One, Multiply, Divide, One, Equal, One};
+            Action act = () => new Equation(components);
+            act.Should().Throw<ArgumentException>();
+        }
+
         [Test]
         public void Given_OneAddSubstractOneEqualsTwo_When_Validate_Then_Return_True()
         {
