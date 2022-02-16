@@ -73,7 +73,7 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[]
             {
-                Substract, Zero, Equal, Zero
+                Substract, One, Add, One, Equal, Zero
             };
             Equation.ValidateSyntax(components).Should().BeTrue();
         }

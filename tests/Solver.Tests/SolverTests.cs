@@ -7,11 +7,6 @@ namespace Solver.Tests
 {
     public class SolverTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void Given_EquationNumberZero_When_GenerateEquation_Then_ReturnCorrectEquation()
         {
@@ -30,28 +25,10 @@ namespace Solver.Tests
             Solver.GenerateComponents(1, 8).Should().BeEquivalentTo(components);
         }
 
-        // [Test]
-        // public void Given_DigitCountThree_When_CountValidGuesses_ReturnTen()
-        // {
-        //     Solver.CountValidGuesses(3).Should().Be(10);
-        // }
-
-        // [Test]
-        // public void Given_DigitCountFour_When_CountValidGuesses_ReturnTen()
-        // {
-        //     Solver.CountValidGuesses(4).Should().Be(31);
-        // }
-
-        // [Test]
-        // public void Given_DigitCountFive_When_CountValidGuesses_ReturnTen()
-        // {
-        //     Solver.CountValidGuesses(5).Should().Be(516);
-        // }
-
         [Test]
-        public void Given_DigitCountSix_When_CountValidGuesses_ReturnTen()
+        public void Given_DigitCountThree_When_CountValidGuesses_ReturnTen()
         {
-            Solver.CountValidGuesses(7).Should().Be(516);
+            Solver.CountValidGuesses(3).Should().Be(10);
         }
 
         [Test]

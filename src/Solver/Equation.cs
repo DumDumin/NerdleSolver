@@ -120,20 +120,6 @@ namespace Solver
             else throw new NotImplementedException($"{comp} is not an operator");
         }
 
-        public bool Validate()
-        {
-            int equalIndex = operators.IndexOf(Operator.Equal);
-            long leftside = Calculate(0, equalIndex);
-            long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
-
-            if (leftside == rightside)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public static bool ValidateSyntax(EquationComponent[] components)
         {
             if (ContainsExcatlyOneEqualSign(components))
@@ -187,7 +173,6 @@ namespace Solver
             }
             if (counter == 1) return true;
             else return false;
-
         }
 
         private static bool StartAndEndSignsAreAllowed(EquationComponent[] components)
@@ -232,6 +217,20 @@ namespace Solver
                 }
             }
             return true;
+        }
+
+        public bool Validate()
+        {
+            int equalIndex = operators.IndexOf(Operator.Equal);
+            long leftside = Calculate(0, equalIndex);
+            long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
+
+            if (leftside == rightside)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private long Calculate(int startIndex, int endIndex)

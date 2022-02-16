@@ -35,6 +35,22 @@ namespace Solver.Tests
         }
 
         [Test]
+        public void Given_SubstractBehindEqual_When_Validate_Then_Return_False()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Seven, Equal, Substract, Seven};
+            new Equation(components).Validate().Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_EquationStartsWithSubstract_When_Validate_Then_ReturnTrue()
+        {
+            EquationComponent[] components = new EquationComponent[]{
+                Substract, One, Add, One, Equal, Zero};
+            new Equation(components).Validate().Should().BeTrue();
+        }
+
+        [Test]
         public void Given_OneAddSubstractOneEqualsTwo_When_Validate_Then_Return_True()
         {
             EquationComponent[] components = new EquationComponent[] {

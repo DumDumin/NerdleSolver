@@ -46,7 +46,7 @@ namespace Solver
                     Equation eq = new Equation(components);
                     if (eq.Validate())
                     {
-                        validEquationCount++;
+                        Interlocked.Increment(ref validEquationCount);
                     }
                 }
             });
