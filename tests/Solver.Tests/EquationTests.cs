@@ -23,6 +23,89 @@ namespace Solver.Tests
         }
 
         [Test]
+        public void Given_EquationStartsWithMultiply_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Multiply, One, Equal, One
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeFalse();
+        }
+        [Test]
+        public void Given_EquationStartsWithDivide_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Divide, One, Equal, One
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_EquationStartsWithEqual_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Equal, One
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_EquationStartsWithAdd_When_Validate_Then_ReturnTrue()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Add, One, Equal, One
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeTrue();
+        }
+
+        [Test]
+        public void Given_EquationStartsWithSubstract_When_Validate_Then_ReturnTrue()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Substract, Zero, Equal, Zero
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeTrue();
+        }
+
+        [Test]
+        public void Given_OperatorInFrontOfEqual_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                Zero, Add, Equal, Zero
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeFalse();
+        }
+
+        [Test]
+        public void Given_EquationEndsWithOperator_When_Validate_Then_ReturnFalse()
+        {
+            List<EquationComponent> components = new List<EquationComponent>()
+            {
+                One, Add, One, Equal, Two, Substract
+            };
+            Equation equation = new Equation(components);
+
+            equation.Validate().Should().BeFalse();
+        }
+
+        [Test]
         public void Given_MultipleEqualOperators_When_Validate_Then_ReturnFalse()
         {
             List<EquationComponent> components = new List<EquationComponent>()
@@ -237,9 +320,9 @@ namespace Solver.Tests
         public void Given_CorrectOperatorsAtWrongPlace_When_Compare_Then_Return_CorrectFeedback()
         {
             List<EquationComponent> componentsOne = new List<EquationComponent>(){
-                Four, Divide, Two, Multiply, Four, Equal, Two};
+                Four, Divide, Two, Multiply, Four, Equal, Eight};
             List<EquationComponent> componentsTwo = new List<EquationComponent>(){
-                Four, Multiply, Two, Divide, Four, Equal, Two};
+                Four, Multiply, Two, Divide, Four, Equal, Eight};
 
             Equation equationOne = new Equation(componentsOne);
             Equation equationTwo = new Equation(componentsTwo);
@@ -257,6 +340,17 @@ namespace Solver.Tests
             var result = equationOne.Compare(equationTwo);
             
             result.Comparison.Should().ContainInOrder(expected);
+        }
+
+        [Test]
+        public void Given_ValidEquation_When_ToString_Return_HumanReadableString()
+        {
+            List<EquationComponent> components = new List<EquationComponent>(){
+                Four, Divide, Two, Multiply, Four, Equal, Eight};
+
+            Equation equation = new Equation(components);
+
+            equation.ToString().Should().Be("4/2*4=8");
         }
     }
 }

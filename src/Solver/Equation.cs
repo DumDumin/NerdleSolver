@@ -70,38 +70,60 @@ namespace Solver
             else throw new NotImplementedException($"{comp} is not an operator");
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-
-            Equation e = (Equation)obj;
-
-            return e.operators.SequenceEqual(operators) && e.numbers.SequenceEqual(numbers);
-        }
-
-        public override int GetHashCode()
-        {
-            return operators.GetHashCode() + numbers.GetHashCode();
-        }
-
         public bool Validate()
         {
-            if (operators.Count(o => o == Operator.Equal) == 1)
+            if (ValidateSyntax())
             {
-                int equalIndex = operators.IndexOf(Operator.Equal);
-                long leftside = Calculate(0, equalIndex);
-                long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
+                try
+                {  
+                    int equalIndex = operators.IndexOf(Operator.Equal);
+                    long leftside = Calculate(0, equalIndex);
+                    long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
 
-                if (leftside == rightside)
+                    if (leftside == rightside)
+                    {
+                        return true;
+                    }
+                }
+                catch (System.Exception)
                 {
-                    return true;
+                    // TODO probably of "divided by zero"
+                    return false;
                 }
             }
 
             return false;
+        }
+
+        private bool ValidateSyntax()
+        {
+            if (ContainsExcatlyOneEqualSign())
+            {
+                if (StartAndEndSignsAreAllowed())
+                {
+                    // no operator is allowed in front of the equal sign
+                    int equalIndex = components.IndexOf(EquationComponent.Equal);
+                    if (!IsOperator(components[equalIndex - 1]))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool ContainsExcatlyOneEqualSign()
+        {
+            return operators.Count(o => o == Operator.Equal) == 1;
+        }
+
+        private bool StartAndEndSignsAreAllowed()
+        {
+            return
+                components[0] != Multiply &&
+                components[0] != Divide &&
+                components[0] != Equal &&
+                !IsOperator(components[components.Count-1]);
         }
 
         private long Calculate(int startIndex, int endIndex)
@@ -166,6 +188,45 @@ namespace Solver
             }
 
             return new EquationComparison(equation, results);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            Equation e = (Equation)obj;
+
+            return e.operators.SequenceEqual(operators) && e.numbers.SequenceEqual(numbers);
+        }
+
+        public override int GetHashCode()
+        {
+            return operators.GetHashCode() + numbers.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            string result = "";
+            foreach (var component in components)
+            {
+                if(IsOperator(component))
+                {
+                    if(component == Equal) result += "=";
+                    else if(component == Add) result += "+";
+                    else if(component == Substract) result += "-";
+                    else if(component == Multiply) result += "*";
+                    else if(component == Divide) result += "/";
+                    else throw new NotImplementedException($"{component} is not an operator");
+                }
+                else
+                {
+                    result += ((int)component).ToString();
+                }
+            }
+            return result;
         }
     }
 }
