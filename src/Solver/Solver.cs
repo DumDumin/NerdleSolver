@@ -12,7 +12,7 @@ namespace Solver
         {
             if (info.Count == 0)
             {
-                List<EquationComponent> components = new List<EquationComponent>(){
+                EquationComponent[] components = new EquationComponent[] {
                     Nine, Add, Eight, Substract, Five, Equal, One, Two};
                 Equation guess = new Equation(components);
 
@@ -20,8 +20,8 @@ namespace Solver
             }
             else
             {
-                List<EquationComponent> components = new List<EquationComponent>(){
-                Three, Add, Four, Add, Seven, Equal, One, Four};
+                EquationComponent[] components = new EquationComponent[] {
+                    Three, Add, Four, Add, Seven, Equal, One, Four};
                 Equation guess = new Equation(components);
 
                 return guess;
@@ -37,13 +37,14 @@ namespace Solver
             long allPossibilities = (long)Math.Pow(componentCount, digitCount);
 
             long validEquationCount = 0;
-            Parallel.For(0, allPossibilities, (i ) => {
-                List<EquationComponent> components = GenerateComponents(i, digitCount);
-                
-                if(Equation.ValidateSyntax(components))
+            Parallel.For(0, allPossibilities, (i) =>
+            {
+                EquationComponent[] components = GenerateComponents(i, digitCount);
+
+                if (Equation.ValidateSyntax(components))
                 {
                     Equation eq = new Equation(components);
-                    if(eq.Validate())
+                    if (eq.Validate())
                     {
                         validEquationCount++;
                     }
@@ -53,13 +54,14 @@ namespace Solver
             return validEquationCount;
         }
 
-        public static List<EquationComponent> GenerateComponents(long equationNumber, int digitCount)
+        public static EquationComponent[] GenerateComponents(long equationNumber, int digitCount)
         {
             EquationComponent[] components = new EquationComponent[digitCount];
             GetNextDigit(equationNumber, digitCount, components);
-            return components.ToList();
+            return components;
         }
 
+        // Optimized for performance
         private static void GetNextDigit(long equationNumber, int digitCount, EquationComponent[] components)
         {
             // Algorithm:
@@ -69,7 +71,7 @@ namespace Solver
 
             long result = Math.DivRem(equationNumber, 15, out long rest);
             components[--digitCount] = (EquationComponent)(rest);
-            if(digitCount > 0)
+            if (digitCount > 0)
             {
                 GetNextDigit(result, digitCount, components);
             }

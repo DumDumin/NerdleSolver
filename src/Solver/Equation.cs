@@ -9,9 +9,9 @@ namespace Solver
     {
         private List<long> numbers;
         private List<Operator> operators;
-        private readonly List<EquationComponent> components;
+        private readonly EquationComponent[] components;
 
-        public Equation(List<EquationComponent> components)
+        public Equation(EquationComponent[] components)
         {
             if (!ValidateSyntax(components))
             {
@@ -110,15 +110,16 @@ namespace Solver
             return false;
         }
 
-        public static bool ValidateSyntax(List<EquationComponent> components)
+        public static bool ValidateSyntax(EquationComponent[] components)
         {
             if (ContainsExcatlyOneEqualSign(components))
             {
                 if (StartAndEndSignsAreAllowed(components))
                 {
-                    if (ConsecutiveOperatorsAreAllowed(components))
+                    List<EquationComponent> list = components.ToList();
+                    if (ConsecutiveOperatorsAreAllowed(list))
                     {
-                        if (NoDivisionByZero(components))
+                        if (NoDivisionByZero(list))
                         {
                             return true;
                         }
@@ -149,18 +150,29 @@ namespace Solver
             return true;
         }
 
-        private static bool ContainsExcatlyOneEqualSign(List<EquationComponent> components)
+        // Optimized for performance
+        // The following LINQ statement is too slow
+        // return components.Count(o => o == Equal) == 1;
+        private static bool ContainsExcatlyOneEqualSign(EquationComponent[] components)
         {
-            return components.Count(o => o == Equal) == 1;
+            int counter = 0;
+            for (int i = 0; i < components.Length; i++)
+            {
+                if(components[i] == Equal) counter++;
+                if(counter == 2) return false;
+            }
+            if(counter == 1) return true;
+            else return false;
+
         }
 
-        private static bool StartAndEndSignsAreAllowed(List<EquationComponent> components)
+        private static bool StartAndEndSignsAreAllowed(EquationComponent[] components)
         {
             return
                 components[0] != Multiply &&
                 components[0] != Divide &&
                 components[0] != Equal &&
-                !IsOperator(components[components.Count - 1]);
+                !IsOperator(components[components.Length - 1]);
         }
 
         private static bool ConsecutiveOperatorsAreAllowed(List<EquationComponent> components)
@@ -238,9 +250,9 @@ namespace Solver
 
         public EquationComparison Compare(Equation equation)
         {
-            var results = new List<ComparisonStatus>(components.Count);
+            var results = new List<ComparisonStatus>(components.Length);
             var backup = new List<EquationComponent>();
-            for (int i = 0; i < equation.components.Count; i++)
+            for (int i = 0; i < equation.components.Length; i++)
             {
                 if (equation.components[i] == components[i])
                 {
