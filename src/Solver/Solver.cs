@@ -55,23 +55,23 @@ namespace Solver
 
         public static List<EquationComponent> GenerateComponents(long equationNumber, int digitCount)
         {
-            List<EquationComponent> components = new List<EquationComponent>();
+            EquationComponent[] components = new EquationComponent[digitCount];
             GetNextDigit(equationNumber, digitCount, components);
-            return components;
+            return components.ToList();
         }
 
-        private static void GetNextDigit(long equationNumber, int digitCount, List<EquationComponent> components)
+        private static void GetNextDigit(long equationNumber, int digitCount, EquationComponent[] components)
         {
             // Algorithm:
-            // i % 15 = rest
-            // rest => Enum value
-            // i / 15 = i
-            // if(i > 0) => recursion
-            EquationComponent digit = (EquationComponent)(equationNumber % 15);
-            components.Add(digit);
-            if(digitCount > 1)
+            // Enum = i % 15 
+            // i = i / 15
+            // Recursion
+
+            long result = Math.DivRem(equationNumber, 15, out long rest);
+            components[--digitCount] = (EquationComponent)(rest);
+            if(digitCount > 0)
             {
-                GetNextDigit(equationNumber / 15, digitCount-1, components);
+                GetNextDigit(result, digitCount, components);
             }
         }
     }
