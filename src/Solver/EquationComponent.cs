@@ -1,14 +1,5 @@
 namespace Solver
 {
-    public enum Operator
-    {
-        Equal,
-        Add,
-        Multiply,
-        Divide,
-        Substract
-    }
-
     public enum EquationComponent
     {
         Zero = 0,

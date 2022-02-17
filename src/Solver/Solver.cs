@@ -1,8 +1,4 @@
-using System.Linq;
-using System.Collections.Generic;
-using System;
 using static Solver.EquationComponent;
-using System.Threading.Tasks;
 
 namespace Solver
 {
@@ -43,8 +39,8 @@ namespace Solver
 
                 if (Equation.ValidateSyntax(components))
                 {
-                    Equation eq = new Equation(components);
-                    if (eq.Validate())
+                    // Equation eq = new Equation(components);
+                    if (Equation.Validate(components))
                     {
                         Interlocked.Increment(ref validEquationCount);
                     }

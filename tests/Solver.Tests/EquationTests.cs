@@ -23,7 +23,7 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Five, Zero, Equal, Zero, Multiply, Zero};
-            new Equation(components).Validate().Should().BeFalse();
+            Equation.Validate(components).Should().BeFalse();
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Five, Zero, Equal, One, Zero, Multiply, Five};
-            new Equation(components).Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Seven, Equal, Substract, Seven};
-            new Equation(components).Validate().Should().BeFalse();
+            Equation.Validate(components).Should().BeFalse();
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[]{
                 Substract, One, Add, One, Equal, Zero};
-            new Equation(components).Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -55,9 +55,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Add, Substract, One, Equal, Zero};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -65,9 +64,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Six, Add, Seven, Equal, One, Three};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -75,9 +73,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Equal, One};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -85,9 +82,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Equal, Two};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeFalse();
+            Equation.Validate(components).Should().BeFalse();
         }
 
         [Test]
@@ -95,9 +91,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Add, One, Equal, Two};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -105,9 +100,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Substract, One, Equal, Zero};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -115,9 +109,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Add, One, Add, One, Equal, Three};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -125,9 +118,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Add, One, Equal, One, Add, One};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -135,9 +127,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Two, Multiply, Two, Equal, Four};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -145,9 +136,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Two, Multiply, Two, Multiply, Two, Equal, Eight};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -155,9 +145,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 One, Add, Two, Multiply, Two, Equal, Five};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -165,9 +154,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Two, Multiply, Two, Add, Two, Equal, Six};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
@@ -175,9 +163,8 @@ namespace Solver.Tests
         {
             EquationComponent[] components = new EquationComponent[] {
                 Four, Multiply, Two, Divide, Eight, Equal, One};
-            Equation equation = new Equation(components);
 
-            equation.Validate().Should().BeTrue();
+            Equation.Validate(components).Should().BeTrue();
         }
 
         [Test]
