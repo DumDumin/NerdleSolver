@@ -23,6 +23,7 @@ namespace Solver.Tests
                 One, Divide, Zero, Equal, One};
             Equation.ValidateSyntax(components).Should().BeFalse();
         }
+
         [Test]
         public void Given_DivideByZeroTwoTimes_When_Validate_Then_ReturnFalse()
         {
@@ -38,6 +39,7 @@ namespace Solver.Tests
                 Multiply, One, Equal, One};
             Equation.ValidateSyntax(components).Should().BeFalse();
         }
+        
         [Test]
         public void Given_EquationStartsWithDivide_When_Validate_Then_ReturnFalse()
         {

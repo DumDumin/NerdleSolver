@@ -60,21 +60,21 @@ namespace Solver
                 int counter = 0;
                 for (int i = 0; i < comparison.Comparison.Count; i++)
                 {
-                    if(comparison.Comparison[i] == ComparisonStatus.Correct && eq[i] != comparison.Equation.components[i])
+                    if (comparison.Comparison[i] == ComparisonStatus.Correct && eq[i] != comparison.Equation.components[i])
                     {
                         break;
                     }
-                    else if(comparison.Comparison[i] == ComparisonStatus.False && eq[i] == comparison.Equation.components[i])
+                    else if (comparison.Comparison[i] == ComparisonStatus.False && eq[i] == comparison.Equation.components[i])
                     {
                         break;
                     }
-                    else if(comparison.Comparison[i] == ComparisonStatus.WrongPlace)
+                    else if (comparison.Comparison[i] == ComparisonStatus.WrongPlace)
                     {
-                        if(eq[i] == comparison.Equation.components[i])
+                        if (eq[i] == comparison.Equation.components[i])
                         {
                             break;
                         }
-                        else if(!eq.Contains(comparison.Equation.components[i]))
+                        else if (!eq.Contains(comparison.Equation.components[i]))
                         {
                             // TODO delete used components
                             break;
@@ -82,7 +82,7 @@ namespace Solver
                     }
                     counter++;
                 }
-                if(counter == comparison.Comparison.Count)
+                if (counter == comparison.Comparison.Count)
                 {
                     result.Add(eq);
                 }
@@ -229,10 +229,10 @@ namespace Solver
         {
             int equalIndex = GetEqualIndex(components);
 
-            long leftside = Calculate(components, 0, equalIndex);
-            long rightside = Calculate(components, equalIndex + 1, components.Length);
+            long leftside = Calculate(components, 0, equalIndex, out bool validLeft);
+            long rightside = Calculate(components, equalIndex + 1, components.Length, out bool validRight);
 
-            if (leftside == rightside)
+            if (leftside == rightside && validRight && validLeft)
             {
                 return true;
             }
@@ -255,54 +255,65 @@ namespace Solver
             return equalIndex;
         }
 
-        private static long Calculate(EquationComponent[] components, int startIndex, int endIndex)
+        private static long Calculate(EquationComponent[] components, int startIndex, int endIndex, out bool valid)
         {
             if (components.Length > startIndex && startIndex < endIndex)
             {
+                valid = true;
                 if (IsOperator(components[startIndex]))
                 {
                     EquationComponent op = GetNextOperator(components, ref startIndex);
                     long result = GetNextNumber(components, ref startIndex);
                     if (op == Substract)
                         result = -result;
-                    result = Calculate(components, result, startIndex, endIndex);
+                    result = Calculate(components, result, startIndex, endIndex, out valid);
                     return result;
                 }
                 else
                 {
                     long result = GetNextNumber(components, ref startIndex);
-                    result = Calculate(components, result, startIndex, endIndex);
+                    result = Calculate(components, result, startIndex, endIndex, out valid);
                     return result;
                 }
             }
             else
             {
+                valid = false;
                 throw new NotImplementedException();
             }
         }
 
-        private static long Calculate(EquationComponent[] components, long result, int startIndex, int endIndex)
+        private static long Calculate(EquationComponent[] components, long result, int startIndex, int endIndex, out bool valid)
         {
+            valid = true;
             if (startIndex == endIndex) return result;
 
             var op = GetNextOperator(components, ref startIndex);
             if (op == Add)
             {
-                result += Calculate(components, startIndex, endIndex);
+                result += Calculate(components, startIndex, endIndex, out valid);
             }
             else if (op == Substract)
             {
-                result -= Calculate(components, startIndex, endIndex);
+                result -= Calculate(components, startIndex, endIndex, out valid);
             }
             else if (op == Multiply)
             {
                 result *= GetNextNumber(components, ref startIndex);
-                result = Calculate(components, result, startIndex, endIndex);
+                result = Calculate(components, result, startIndex, endIndex, out valid);
             }
             else if (op == Divide)
             {
-                result /= GetNextNumber(components, ref startIndex);
-                result = Calculate(components, result, startIndex, endIndex);
+                var number = GetNextNumber(components, ref startIndex);
+                var rest = result % number;
+                if (rest != 0)
+                {
+                    // End calculation of division is not valid
+                    valid = false;
+                    return long.MaxValue;
+                }
+                result /= number;
+                result = Calculate(components, result, startIndex, endIndex, out valid);
             }
             else
             {

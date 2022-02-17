@@ -167,6 +167,15 @@ namespace Solver.Tests
             Equation.Validate(components).Should().BeTrue();
         }
 
+        
+        [Test]
+        public void Given_DivideResultsInFloatingPoint_When_Validate_Then_ReturnFalse()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Add, Four, Divide, Nine, Divide, Nine, Equal, Zero};
+            Equation.Validate(components).Should().BeFalse();
+        }
+
         [Test]
         public void Given_EqualEquations_When_Equals_Then_Return_True()
         {
