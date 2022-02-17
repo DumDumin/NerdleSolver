@@ -7,8 +7,6 @@ namespace Solver
 {
     public class Equation
     {
-        private List<long> numbers;
-        private List<Operator> operators;
         private readonly EquationComponent[] components;
 
         public Equation(EquationComponent[] components)
@@ -19,44 +17,9 @@ namespace Solver
             }
 
             this.components = components;
-
-            this.numbers = new List<long>();
-            this.operators = new List<Operator>();
-
-            TranslateComponents();
         }
 
-        // Optimized for performance
-        private void TranslateComponents()
-        {
-            int index = 0;
-            while (index < components.Length)
-            {
-                if (IsOperator(components[index]))
-                {
-                    Operator op = GetNextOperator(ref index);
-                    int number = GetNextNumber(components, ref index);
-                    if (op == Operator.Substract)
-                        numbers.Add(-number);
-                    else
-                        numbers.Add(number);
-                }
-                else
-                {
-                    int number = GetNextNumber(components, ref index);
-                    numbers.Add(number);
-                }
-
-
-                if (index < components.Length)
-                {
-                    Operator op = GetNextOperator(ref index);
-                    operators.Add(op);
-                }
-            }
-        }
-
-        private Operator GetNextOperator(ref int index)
+        private static Operator GetNextOperator(EquationComponent[] components, ref int index)
         {
             EquationComponent firstOp = Equal;
             for (int i = index; index < components.Length; index++)
@@ -87,7 +50,7 @@ namespace Solver
             return op;
         }
 
-        private EquationComponent CombineOperators(EquationComponent first, EquationComponent second)
+        private static EquationComponent CombineOperators(EquationComponent first, EquationComponent second)
         {
             if(first == Add && second == Substract)
                 return Substract;
@@ -122,7 +85,7 @@ namespace Solver
                 return false;
         }
 
-        private Operator GetOperatorFromEquationComponent(EquationComponent comp)
+        private static Operator GetOperatorFromEquationComponent(EquationComponent comp)
         {
             if (comp == Equal) return Operator.Equal;
             if (comp == Add) return Operator.Add;
@@ -231,12 +194,18 @@ namespace Solver
             }
             return true;
         }
-
+        
         public bool Validate()
         {
-            int equalIndex = operators.IndexOf(Operator.Equal);
-            long leftside = Calculate(0, equalIndex);
-            long rightside = Calculate(equalIndex + 1, numbers.Count - 1);
+            int equalIndex = 0;
+            for (int i = 0; i < components.Length; i++)
+            {
+                if(components[i] == Equal)
+                    equalIndex = i;
+            }
+                
+            long leftside = Calculate(components, 0, equalIndex);
+            long rightside = Calculate(components, equalIndex+1, components.Length);
 
             if (leftside == rightside)
             {
@@ -246,39 +215,55 @@ namespace Solver
             return false;
         }
 
-        private long Calculate(int startIndex, int endIndex)
+        private static long Calculate(EquationComponent[] components, int startIndex, int endIndex)
         {
-            long result = numbers[startIndex];
-
-            if (operators.Count > startIndex && startIndex < endIndex)
+            if (components.Length > startIndex && startIndex < endIndex)
             {
-                result = Calculate(result, startIndex, endIndex);
-            }
 
-            return result;
+                if (IsOperator(components[startIndex]))
+                {
+                    Operator op = GetNextOperator(components, ref startIndex);
+                    long result = GetNextNumber(components, ref startIndex);
+                    if (op == Operator.Substract)
+                        result = -result;
+                    result = Calculate(components, result, startIndex, endIndex);
+                    return result;
+                }
+                else
+                {
+                    long result = GetNextNumber(components, ref startIndex);
+                    result = Calculate(components, result, startIndex, endIndex);
+                    return result;
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private long Calculate(long result, int startIndex, int endIndex)
+        private static long Calculate(EquationComponent[] components, long result, int startIndex, int endIndex)
         {
             if (startIndex == endIndex) return result;
 
-            if (operators[startIndex] == Operator.Add)
+            var op = GetNextOperator(components, ref startIndex);
+            if (op == Operator.Add)
             {
-                result += Calculate(startIndex + 1, endIndex);
+                result += Calculate(components, startIndex, endIndex);
             }
-            else if (operators[startIndex] == Operator.Substract)
+            else if (op == Operator.Substract)
             {
-                result -= Calculate(startIndex + 1, endIndex);
+                result -= Calculate(components, startIndex, endIndex);
             }
-            else if (operators[startIndex] == Operator.Multiply)
+            else if (op == Operator.Multiply)
             {
-                result *= numbers[startIndex + 1];
-                result = Calculate(result, startIndex + 1, endIndex);
+                result *= GetNextNumber(components, ref startIndex);
+                result = Calculate(components, result, startIndex, endIndex);
             }
-            else if (operators[startIndex] == Operator.Divide)
+            else if (op == Operator.Divide)
             {
-                result /= numbers[startIndex + 1];
-                result = Calculate(result, startIndex + 1, endIndex);
+                result /= GetNextNumber(components, ref startIndex);
+                result = Calculate(components, result, startIndex, endIndex);
             }
 
             return result;
@@ -321,12 +306,12 @@ namespace Solver
 
             Equation e = (Equation)obj;
 
-            return e.operators.SequenceEqual(operators) && e.numbers.SequenceEqual(numbers);
+            return e.components.SequenceEqual(components);
         }
 
         public override int GetHashCode()
         {
-            return operators.GetHashCode() + numbers.GetHashCode();
+            return components.GetHashCode();
         }
 
         public override string ToString()
