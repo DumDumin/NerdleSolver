@@ -35,7 +35,7 @@ namespace Solver
                 if (IsOperator(components[index]))
                 {
                     Operator op = GetNextOperator(ref index);
-                    int number = GetNextNumber(ref index);
+                    int number = GetNextNumber(components, ref index);
                     if (op == Operator.Substract)
                         numbers.Add(-number);
                     else
@@ -43,7 +43,7 @@ namespace Solver
                 }
                 else
                 {
-                    int number = GetNextNumber(ref index);
+                    int number = GetNextNumber(components, ref index);
                     numbers.Add(number);
                 }
 
@@ -66,7 +66,7 @@ namespace Solver
                 {
                     opsComp.Add(components[index]);
 
-                    if(components[index] == Equal)
+                    if (components[index] == Equal)
                     {
                         // Equal sign should not be combined with other operators
                         index++;
@@ -83,7 +83,7 @@ namespace Solver
             return op;
         }
 
-        private int GetNextNumber(ref int index)
+        private static int GetNextNumber(EquationComponent[] components, ref int index)
         {
             int number = 0;
             for (int i = index; index < components.Length; index++)
@@ -106,16 +106,6 @@ namespace Solver
                 return true;
             else
                 return false;
-        }
-
-        private static long GetNumberFromDigits(List<EquationComponent> digits)
-        {
-            long result = 0;
-            for (int i = 0; i < digits.Count; i++)
-            {
-                result += (long)digits[i] * (long)Math.Pow(10, digits.Count - 1 - i);
-            }
-            return result;
         }
 
         private EquationComponent CombineOperators(List<EquationComponent> operators)
@@ -142,30 +132,34 @@ namespace Solver
 
         public static bool ValidateSyntax(EquationComponent[] components)
         {
-            if (ContainsExcatlyOneEqualSign(components))
+            if (ContainsExcatlyOneEqualSign(components) &&
+                StartAndEndSignsAreAllowed(components) &&
+                ConsecutiveOperatorsAreAllowed(components) &&
+                NoDivisionByZero(components))
             {
-                if (StartAndEndSignsAreAllowed(components))
-                {
-                    if (ConsecutiveOperatorsAreAllowed(components))
-                    {
-                        List<EquationComponent> list = components.ToList();
-                        if (NoDivisionByZero(list))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                return true;
             }
             return false;
         }
 
-        private static bool NoDivisionByZero(List<EquationComponent> components, int skip = 0)
+        // Optimized for performance
+        private static bool NoDivisionByZero(EquationComponent[] components, int skip = 0)
         {
-            int index = components.IndexOf(Divide, skip);
+            // TODO create find operator method
+            int index = -1;
+            for (int i = skip; i < components.Length; i++)
+            {
+                if (components[i] == Divide)
+                {
+                    // index point in digit behind divide sign
+                    index = i + 1;
+                    break;
+                }
+            }
+
             if (index != -1)
             {
-                var digits = components.Skip(index + 1).TakeWhile(c => !IsOperator(c)).ToList();
-                var number = GetNumberFromDigits(digits);
+                long number = GetNextNumber(components, ref index);
                 if (number == 0)
                 {
                     return false;
@@ -173,7 +167,7 @@ namespace Solver
                 else
                 {
                     // as long we found a division, we try to find another one
-                    return NoDivisionByZero(components, index + 1);
+                    return NoDivisionByZero(components, index);
                 }
             }
 
