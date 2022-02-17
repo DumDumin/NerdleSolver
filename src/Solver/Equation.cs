@@ -32,8 +32,21 @@ namespace Solver
             int index = 0;
             while (index < components.Length)
             {
-                int number = GetNextNumber(ref index);
-                numbers.Add(number);
+                if (IsOperator(components[index]))
+                {
+                    Operator op = GetNextOperator(ref index);
+                    int number = GetNextNumber(ref index);
+                    if (op == Operator.Substract)
+                        numbers.Add(-number);
+                    else
+                        numbers.Add(number);
+                }
+                else
+                {
+                    int number = GetNextNumber(ref index);
+                    numbers.Add(number);
+                }
+
 
                 if (index < components.Length)
                 {
@@ -52,6 +65,13 @@ namespace Solver
                 if (IsOperator(components[index]))
                 {
                     opsComp.Add(components[index]);
+
+                    if(components[index] == Equal)
+                    {
+                        // Equal sign should not be combined with other operators
+                        index++;
+                        break;
+                    }
                 }
                 else
                 {
