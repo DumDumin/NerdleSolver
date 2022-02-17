@@ -51,6 +51,45 @@ namespace Solver
             throw new ArgumentException("Could not find an operator with a following digit");
         }
 
+        public static List<EquationComponent[]> Filter(List<EquationComponent[]> list, EquationComparison comparison)
+        {
+            List<EquationComponent[]> result = new List<EquationComponent[]>();
+            foreach (var eq in list)
+            {
+                // check every position of both equations
+                int counter = 0;
+                for (int i = 0; i < comparison.Comparison.Count; i++)
+                {
+                    if(comparison.Comparison[i] == ComparisonStatus.Correct && eq[i] != comparison.Equation.components[i])
+                    {
+                        break;
+                    }
+                    else if(comparison.Comparison[i] == ComparisonStatus.False && eq[i] == comparison.Equation.components[i])
+                    {
+                        break;
+                    }
+                    else if(comparison.Comparison[i] == ComparisonStatus.WrongPlace)
+                    {
+                        if(eq[i] == comparison.Equation.components[i])
+                        {
+                            break;
+                        }
+                        else if(!eq.Contains(comparison.Equation.components[i]))
+                        {
+                            // TODO delete used components
+                            break;
+                        }
+                    }
+                    counter++;
+                }
+                if(counter == comparison.Comparison.Count)
+                {
+                    result.Add(eq);
+                }
+            }
+            return result;
+        }
+
         private static EquationComponent CombineOperators(EquationComponent first, EquationComponent second)
         {
             if (first == Add && second == Substract)
@@ -273,32 +312,33 @@ namespace Solver
             return result;
         }
 
-        public EquationComparison Compare(Equation equation)
+        public EquationComparison Compare(Equation equationToCheck) => Compare(this, equationToCheck);
+        public static EquationComparison Compare(Equation equation, Equation equationToCheck)
         {
-            var results = new List<ComparisonStatus>(components.Length);
+            var results = new List<ComparisonStatus>(equation.components.Length);
             var backup = new List<EquationComponent>();
-            for (int i = 0; i < equation.components.Length; i++)
+            for (int i = 0; i < equationToCheck.components.Length; i++)
             {
-                if (equation.components[i] == components[i])
+                if (equationToCheck.components[i] == equation.components[i])
                 {
                     results.Add(ComparisonStatus.Correct);
                 }
                 else
                 {
                     results.Add(ComparisonStatus.False);
-                    backup.Add(components[i]);
+                    backup.Add(equation.components[i]);
                 }
             }
             for (int i = 0; i < results.Count; i++)
             {
-                if (results[i] == ComparisonStatus.False && backup.Contains(equation.components[i]))
+                if (results[i] == ComparisonStatus.False && backup.Contains(equationToCheck.components[i]))
                 {
                     results[i] = ComparisonStatus.WrongPlace;
-                    backup.Remove(equation.components[i]);
+                    backup.Remove(equationToCheck.components[i]);
                 }
             }
 
-            return new EquationComparison(equation, results);
+            return new EquationComparison(equationToCheck, results);
         }
 
         public override bool Equals(object obj)
