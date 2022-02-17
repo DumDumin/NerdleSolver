@@ -58,15 +58,20 @@ namespace Solver
 
         private Operator GetNextOperator(ref int index)
         {
-            // TODO can this list be optimized -> maybe delete CombineOperators
-            List<EquationComponent> opsComp = new List<EquationComponent>();
+            EquationComponent firstOp = Equal;
             for (int i = index; index < components.Length; index++)
             {
                 if (IsOperator(components[index]))
                 {
-                    opsComp.Add(components[index]);
-
-                    if (components[index] == Equal)
+                    if(firstOp == Equal)
+                    {
+                        firstOp = components[index];
+                    }
+                    else
+                    {
+                        firstOp = CombineOperators(firstOp, components[index]);
+                    }
+                    if (firstOp == Equal)
                     {
                         // Equal sign should not be combined with other operators
                         index++;
@@ -78,9 +83,18 @@ namespace Solver
                     break;
                 }
             }
-            var opComp = CombineOperators(opsComp);
-            var op = GetOperatorFromEquationComponent(opComp);
+            var op = GetOperatorFromEquationComponent(firstOp);
             return op;
+        }
+
+        private EquationComponent CombineOperators(EquationComponent first, EquationComponent second)
+        {
+            if(first == Add && second == Substract)
+                return Substract;
+            else if(first == Substract && second == Add)
+                return Substract;
+            else
+                return Add;
         }
 
         private static int GetNextNumber(EquationComponent[] components, ref int index)
@@ -108,18 +122,6 @@ namespace Solver
                 return false;
         }
 
-        private EquationComponent CombineOperators(List<EquationComponent> operators)
-        {
-            // This method can only be called from a validated Equation
-            if (operators[0] == Multiply) return Multiply;
-            if (operators[0] == Divide) return Divide;
-            if (operators[0] == Equal) return Equal;
-
-            if (operators.All(o => o == Add)) return Add;
-            if (operators.Count(o => o == Substract) % 2 == 1) return Substract;
-            else return Add;
-        }
-
         private Operator GetOperatorFromEquationComponent(EquationComponent comp)
         {
             if (comp == Equal) return Operator.Equal;
@@ -132,14 +134,11 @@ namespace Solver
 
         public static bool ValidateSyntax(EquationComponent[] components)
         {
-            if (ContainsExcatlyOneEqualSign(components) &&
+            return
+                ContainsExcatlyOneEqualSign(components) &&
                 StartAndEndSignsAreAllowed(components) &&
                 ConsecutiveOperatorsAreAllowed(components) &&
-                NoDivisionByZero(components))
-            {
-                return true;
-            }
-            return false;
+                NoDivisionByZero(components);
         }
 
         // Optimized for performance
