@@ -19,14 +19,14 @@ namespace Solver
             this.components = components;
         }
 
-        private static Operator GetNextOperator(EquationComponent[] components, ref int index)
+        private static EquationComponent GetNextOperator(EquationComponent[] components, ref int index)
         {
             EquationComponent firstOp = Equal;
             for (int i = index; index < components.Length; index++)
             {
                 if (IsOperator(components[index]))
                 {
-                    if(firstOp == Equal)
+                    if (firstOp == Equal)
                     {
                         firstOp = components[index];
                     }
@@ -34,6 +34,7 @@ namespace Solver
                     {
                         firstOp = CombineOperators(firstOp, components[index]);
                     }
+
                     if (firstOp == Equal)
                     {
                         // Equal sign should not be combined with other operators
@@ -43,18 +44,18 @@ namespace Solver
                 }
                 else
                 {
-                    break;
+                    return firstOp;
                 }
             }
-            var op = GetOperatorFromEquationComponent(firstOp);
-            return op;
+
+            throw new ArgumentException("Could not find an operator with a following digit");
         }
 
         private static EquationComponent CombineOperators(EquationComponent first, EquationComponent second)
         {
-            if(first == Add && second == Substract)
+            if (first == Add && second == Substract)
                 return Substract;
-            else if(first == Substract && second == Add)
+            else if (first == Substract && second == Add)
                 return Substract;
             else
                 return Add;
@@ -83,16 +84,6 @@ namespace Solver
                 return true;
             else
                 return false;
-        }
-
-        private static Operator GetOperatorFromEquationComponent(EquationComponent comp)
-        {
-            if (comp == Equal) return Operator.Equal;
-            if (comp == Add) return Operator.Add;
-            if (comp == Substract) return Operator.Substract;
-            if (comp == Multiply) return Operator.Multiply;
-            if (comp == Divide) return Operator.Divide;
-            else throw new NotImplementedException($"{comp} is not an operator");
         }
 
         public static bool ValidateSyntax(EquationComponent[] components)
@@ -194,18 +185,13 @@ namespace Solver
             }
             return true;
         }
-        
-        public bool Validate()
+
+        public static bool Validate(EquationComponent[] components)
         {
-            int equalIndex = 0;
-            for (int i = 0; i < components.Length; i++)
-            {
-                if(components[i] == Equal)
-                    equalIndex = i;
-            }
-                
+            int equalIndex = GetEqualIndex(components);
+
             long leftside = Calculate(components, 0, equalIndex);
-            long rightside = Calculate(components, equalIndex+1, components.Length);
+            long rightside = Calculate(components, equalIndex + 1, components.Length);
 
             if (leftside == rightside)
             {
@@ -215,16 +201,30 @@ namespace Solver
             return false;
         }
 
+        private static int GetEqualIndex(EquationComponent[] components)
+        {
+            int equalIndex = 0;
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i] == Equal)
+                {
+                    equalIndex = i;
+                    break;
+                }
+            }
+
+            return equalIndex;
+        }
+
         private static long Calculate(EquationComponent[] components, int startIndex, int endIndex)
         {
             if (components.Length > startIndex && startIndex < endIndex)
             {
-
                 if (IsOperator(components[startIndex]))
                 {
-                    Operator op = GetNextOperator(components, ref startIndex);
+                    EquationComponent op = GetNextOperator(components, ref startIndex);
                     long result = GetNextNumber(components, ref startIndex);
-                    if (op == Operator.Substract)
+                    if (op == Substract)
                         result = -result;
                     result = Calculate(components, result, startIndex, endIndex);
                     return result;
@@ -247,23 +247,27 @@ namespace Solver
             if (startIndex == endIndex) return result;
 
             var op = GetNextOperator(components, ref startIndex);
-            if (op == Operator.Add)
+            if (op == Add)
             {
                 result += Calculate(components, startIndex, endIndex);
             }
-            else if (op == Operator.Substract)
+            else if (op == Substract)
             {
                 result -= Calculate(components, startIndex, endIndex);
             }
-            else if (op == Operator.Multiply)
+            else if (op == Multiply)
             {
                 result *= GetNextNumber(components, ref startIndex);
                 result = Calculate(components, result, startIndex, endIndex);
             }
-            else if (op == Operator.Divide)
+            else if (op == Divide)
             {
                 result /= GetNextNumber(components, ref startIndex);
                 result = Calculate(components, result, startIndex, endIndex);
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
 
             return result;
