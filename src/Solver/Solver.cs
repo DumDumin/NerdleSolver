@@ -4,24 +4,54 @@ namespace Solver
 {
     public static class Solver
     {
-        public static Equation Guess(List<EquationComparison> info)
+        private static Random rnd = new Random();
+        public static Equation Guess(List<EquationComponent[]> possibilities)
         {
-            if (info.Count == 0)
-            {
-                EquationComponent[] components = new EquationComponent[] {
-                    Nine, Add, Eight, Substract, Five, Equal, One, Two};
-                Equation guess = new Equation(components);
+            int index = rnd.Next(0, possibilities.Count);
+            return new Equation(possibilities[index]);
+        }
 
-                return guess;
-            }
-            else
-            {
-                EquationComponent[] components = new EquationComponent[] {
-                    Three, Add, Four, Add, Seven, Equal, One, Four};
-                Equation guess = new Equation(components);
+        public static Equation Solve(int digitCount, Func<Equation, EquationComparison> compare, out int tries)
+        {
+            // Enum count = 15
+            // Possible places = 8
+            // => 15^8 => base 15 system
+            var componentCount = Enum.GetNames(typeof(EquationComponent)).Length;
+            long allPossibilities = (long)Math.Pow(componentCount, digitCount);
 
-                return guess;
+            List<EquationComponent[]> possibilities = new List<EquationComponent[]>();
+            Parallel.For(0, allPossibilities, (i) =>
+            {
+                EquationComponent[] components = GenerateComponents(i, digitCount);
+
+                if (Equation.ValidateSyntax(components))
+                {
+                    if (Equation.Validate(components))
+                    {
+                        lock (possibilities)
+                        {
+                            possibilities.Add(components);
+                        }
+                    }
+                }
+            });
+
+            List<EquationComparison> comparisons = new List<EquationComparison>();
+            while(comparisons.Count < 8)
+            {
+                Equation guess = Guess(possibilities);
+                EquationComparison comparison = compare(guess);
+                comparisons.Add(comparison);
+                if(comparison.Comparison.All(c => c == ComparisonStatus.Correct))
+                {
+                    tries = comparisons.Count;
+                    return guess;
+                }
+
+                possibilities = Equation.Filter(possibilities, comparison);
             }
+
+            throw new Exception($"Unable to find a solution in {comparisons.Count} tries");
         }
 
         public static long CountValidGuesses(int digitCount)
@@ -39,7 +69,6 @@ namespace Solver
 
                 if (Equation.ValidateSyntax(components))
                 {
-                    // Equation eq = new Equation(components);
                     if (Equation.Validate(components))
                     {
                         Interlocked.Increment(ref validEquationCount);
