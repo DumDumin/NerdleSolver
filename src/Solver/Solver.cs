@@ -7,7 +7,7 @@ namespace Solver
         private static Random rnd = new Random();
         public static Equation Guess(List<EquationComponent[]> possibilities)
         {
-            int index = rnd.Next(0, possibilities.Count);
+            int index = rnd.Next(0, possibilities.Count-1);
             return new Equation(possibilities[index]);
         }
 
@@ -37,7 +37,7 @@ namespace Solver
             });
 
             List<EquationComparison> comparisons = new List<EquationComparison>();
-            while(comparisons.Count < 8)
+            while(comparisons.Count < digitCount)
             {
                 Equation guess = Guess(possibilities);
                 EquationComparison comparison = compare(guess);
@@ -46,6 +46,10 @@ namespace Solver
                 {
                     tries = comparisons.Count;
                     return guess;
+                }
+                else
+                {
+                    Console.WriteLine($"{guess} out if {possibilities.Count} possibilities");
                 }
 
                 possibilities = Equation.Filter(possibilities, comparison);

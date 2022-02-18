@@ -7,14 +7,15 @@ namespace Solver
     {
         static void Main(string[] args)
         {
+            // Console.WriteLine($"Count {Solver.CountValidGuesses(8)} possibilities");
             Console.WriteLine("Solving...");
-            Equation eq = Solver.Solve(8, Compare, out int tries);
-            Console.WriteLine($"Solved {eq} in {tries} tries");
+            Equation solution = Solver.Solve(8, Compare, out int tries);
+            Console.WriteLine($"Solved {solution} in {tries} tries");
         }
 
         static Equation eq = new Equation(new EquationComponent[]
         {
-            Two, Add, Four, Equal, One, Three, Substract, Seven
+            Zero, Zero, Add, Zero, Equal, Five, Substract, Five
         });
 
         static EquationComparison Compare(Equation equation)
