@@ -56,13 +56,23 @@ namespace Solver
             List<EquationComponent[]> result = new List<EquationComponent[]>();
             foreach (var eq in list)
             {
+                List<EquationComponent> buffer = eq.ToList();
                 // check every position of both equations
                 int counter = 0;
                 for (int i = 0; i < comparison.Comparison.Count; i++)
                 {
-                    if (comparison.Comparison[i] == ComparisonStatus.Correct && eq[i] != comparison.Equation.components[i])
+                    if (comparison.Comparison[i] == ComparisonStatus.Correct)
                     {
-                        break;
+                        if(eq[i] != comparison.Equation.components[i])
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            // Remove the correct positioned component from the buffer
+                            // it cannot be used for wrong positioned components anymore
+                            buffer.Remove(eq[i]);
+                        }
                     }
                     else if (comparison.Comparison[i] == ComparisonStatus.False && eq[i] == comparison.Equation.components[i])
                     {
@@ -74,10 +84,15 @@ namespace Solver
                         {
                             break;
                         }
-                        else if (!eq.Contains(comparison.Equation.components[i]))
+                        else if (!buffer.Contains(comparison.Equation.components[i]))
                         {
-                            // TODO delete used components
                             break;
+                        }
+                        else
+                        {
+                            // Remove the wrong positioned component from the buffer
+                            // it cannot be used for other wrong positioned components anymore
+                            buffer.Remove(comparison.Equation.components[i]);
                         }
                     }
                     counter++;

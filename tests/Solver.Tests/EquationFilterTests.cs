@@ -11,7 +11,7 @@ namespace Solver.Tests
     {
 
         [Test]
-        public void Given_TwoEquationsAndComparison_When_Filter_Then_ReturnOneEquation()
+        public void Given_EquationWithKnownFalseOperator_When_Filter_Then_RemoveIt()
         {
             // correct equation is One Add Two Equals Three (1+2=3)
             EquationComponent[] equation = new EquationComponent[] {
@@ -35,9 +35,8 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_TwoEquationsAndComparison_When_Filter_Then_ReturnOneEquationA()
+        public void Given_EquationWithKnownFalsePosition_When_Filter_Then_RemoveIt()
         {
-            // correct equation is One Add Two Equals Three (1+2=3)
             EquationComponent[] equation = new EquationComponent[] {
                 One, Add, Two, Add, Three, Equal, Six};
             EquationComponent[] compare = new EquationComponent[] {
@@ -45,7 +44,6 @@ namespace Solver.Tests
 
             EquationComparison comparison = Equation.Compare(new Equation(equation), new Equation(compare));
 
-            // components to check
             EquationComponent[] componentOne = new EquationComponent[] {
                 One, Add, Four, Add, One, Equal, Six};
             EquationComponent[] componentTwo = new EquationComponent[] {
@@ -59,7 +57,7 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_TwoEquationsAndComparison_When_Filter_Then_ReturnOneEquationAA()
+        public void Given_EquationWithTwoAndThree_When_Filter_Then_RemoveIt()
         {
             // correct equation is One Add Two Equals Three (1+2=3)
             EquationComponent[] equation = new EquationComponent[] {
@@ -69,19 +67,57 @@ namespace Solver.Tests
 
             EquationComparison comparison = Equation.Compare(new Equation(equation), new Equation(compare));
 
-            // components to check
             EquationComponent[] componentOne = new EquationComponent[] {
-                One, Add, Two, Add, Three, Equal, Six};
-            EquationComponent[] componentTwo = new EquationComponent[] {
-                Three, Add, One, Add, Two, Equal, Six};
-            EquationComponent[] componentThree = new EquationComponent[] {
                 One, Add, One, Add, Four, Equal, Six};
 
             Equation.Filter(
                 new List<EquationComponent[]>() {
-                    componentOne, componentTwo, componentThree },
+                    componentOne },
+                comparison
+            ).Should().BeEquivalentTo(new List<EquationComponent[]>());
+        }
+
+        [Test]
+        public void Given_EquationWithCorrectComponents_When_Filter_Then_DoNotRemoveThem()
+        {
+            EquationComponent[] equation = new EquationComponent[] {
+                One, Add, Two, Add, Three, Equal, Six};
+            EquationComponent[] compare = new EquationComponent[] {
+                Two, Add, Three, Add, One, Equal, Six};
+
+            EquationComparison comparison = Equation.Compare(new Equation(equation), new Equation(compare));
+
+            EquationComponent[] componentOne = new EquationComponent[] {
+                One, Add, Two, Add, Three, Equal, Six};
+            EquationComponent[] componentTwo = new EquationComponent[] {
+                Three, Add, One, Add, Two, Equal, Six};
+
+            Equation.Filter(
+                new List<EquationComponent[]>() {
+                    componentOne, componentTwo },
                 comparison
             ).Should().BeEquivalentTo(new List<EquationComponent[]>(){componentOne, componentTwo});
+        }
+
+        [Test]
+        public void Given_EquationWithoutEnoughOnes_When_Filter_Then_RemoveIt()
+        {
+            // One is correct and One has WrongPlace
+            EquationComponent[] equation = new EquationComponent[] {
+                One, Add, One, Add, Three, Multiply, Two, Equal, Zero, Eight};
+            EquationComponent[] compare = new EquationComponent[] {
+                One, Add, Four, Multiply, Five, Add, One, Equal, Two, Two};
+
+            EquationComparison comparison = Equation.Compare(new Equation(equation), new Equation(compare));
+
+            EquationComponent[] componentOne = new EquationComponent[] {
+                One, Add, Two, Add, Eight, Multiply, Eight, Equal, Six, Seven};
+
+            Equation.Filter(
+                new List<EquationComponent[]>() {
+                    componentOne },
+                comparison
+            ).Should().BeEquivalentTo(new List<EquationComponent[]>(){});
         }
     }
 }
