@@ -74,7 +74,7 @@ namespace Solver
                             buffer.Remove(eq[i]);
                         }
                     }
-                    else if (comparison.Comparison[i] == ComparisonStatus.False && eq[i] == comparison.Equation.components[i])
+                    else if (comparison.Comparison[i] == ComparisonStatus.False && buffer.Contains(comparison.Equation.components[i]))
                     {
                         break;
                     }

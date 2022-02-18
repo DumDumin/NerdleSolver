@@ -35,7 +35,7 @@ namespace Solver.Tests
         }
 
         [Test]
-        public void Given_EquationWithKnownFalsePosition_When_Filter_Then_RemoveIt()
+        public void Given_EquationWithKnownFalseComponent_When_Filter_Then_RemoveIt()
         {
             EquationComponent[] equation = new EquationComponent[] {
                 One, Add, Two, Add, Three, Equal, Six};
@@ -53,7 +53,7 @@ namespace Solver.Tests
                 new List<EquationComponent[]>() {
                     componentOne, componentTwo },
                 comparison
-            ).Should().BeEquivalentTo(new List<EquationComponent[]>(){componentOne});
+            ).Should().BeEquivalentTo(new List<EquationComponent[]>());
         }
 
         [Test]
