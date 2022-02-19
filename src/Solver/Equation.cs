@@ -63,7 +63,7 @@ namespace Solver
                 {
                     if (comparison.Comparison[i] == ComparisonStatus.Correct)
                     {
-                        if(eq[i] != comparison.Equation.components[i])
+                        if (eq[i] != comparison.Equation.components[i])
                         {
                             break;
                         }
@@ -73,10 +73,6 @@ namespace Solver
                             // it cannot be used for wrong positioned components anymore
                             buffer.Remove(eq[i]);
                         }
-                    }
-                    else if (comparison.Comparison[i] == ComparisonStatus.False && buffer.Contains(comparison.Equation.components[i]))
-                    {
-                        break;
                     }
                     else if (comparison.Comparison[i] == ComparisonStatus.WrongPlace)
                     {
@@ -96,6 +92,15 @@ namespace Solver
                         }
                     }
                     counter++;
+                }
+                // False positions must be checked after all wrongplaces are checked
+                for (int i = 0; i < comparison.Comparison.Count; i++)
+                {
+                    if (comparison.Comparison[i] == ComparisonStatus.False && buffer.Contains(comparison.Equation.components[i]))
+                    {
+                        counter--;
+                        break;
+                    }
                 }
                 if (counter == comparison.Comparison.Count)
                 {

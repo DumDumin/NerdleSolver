@@ -119,5 +119,26 @@ namespace Solver.Tests
                 comparison
             ).Should().BeEquivalentTo(new List<EquationComponent[]>(){});
         }
+
+        [Test]
+        public void Given_EquationWithCorrectZeroAfterFalseZero_When_Filter_Then_DoNotRemove()
+        {
+            // One is correct and One has WrongPlace
+            EquationComponent[] equation = new EquationComponent[] {
+                Zero, Zero, Add, Zero, Equal, Five, Substract, Five};
+            EquationComponent[] compare = new EquationComponent[] {
+                Zero, Zero, Zero, Zero, Zero, Zero, Equal, Zero};
+
+            EquationComparison comparison = Equation.Compare(new Equation(equation), new Equation(compare));
+
+            EquationComponent[] componentOne = new EquationComponent[] {
+                Zero, Zero, Add, Zero, Equal, Five, Substract, Five};
+
+            Equation.Filter(
+                new List<EquationComponent[]>() {
+                    componentOne },
+                comparison
+            ).Should().BeEquivalentTo(new List<EquationComponent[]>(){componentOne});
+        }
     }
 }
