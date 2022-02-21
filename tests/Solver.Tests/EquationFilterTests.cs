@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using Solver;
 using static Solver.EquationComponent;
-using static Solver.ComparisonStatus;
+using System;
 
 namespace Solver.Tests
 {
@@ -139,6 +138,22 @@ namespace Solver.Tests
                     componentOne },
                 comparison
             ).Should().BeEquivalentTo(new List<EquationComponent[]>(){componentOne});
+        }
+
+        [Test]
+        public void Given_ContainsNoZeros_When_Filter_Then_RemoveComponentOne()
+        {
+            EquationComponent[] componentOne = new EquationComponent[] {
+                Zero, Zero, Add, Zero, Equal, Five, Substract, Five};
+            EquationComponent[] componentTwo = new EquationComponent[] {
+                One, Add, Two, Add, Eight, Equal, One, One};
+
+            Equation.Filter(
+                new List<EquationComponent[]>() { componentOne, componentTwo },
+                new List<Func<EquationComponent[], bool>>() {
+                    Rules.ContainsNoZeros
+                }
+            ).Should().BeEquivalentTo(new List<EquationComponent[]>(){ componentTwo });
         }
     }
 }
