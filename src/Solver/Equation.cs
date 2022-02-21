@@ -142,7 +142,7 @@ namespace Solver
             return number;
         }
 
-        private static bool IsOperator(EquationComponent component)
+        public static bool IsOperator(EquationComponent component)
         {
             if (component == Equal || component == Add || component == Substract || component == Multiply || component == Divide)
                 return true;
@@ -265,7 +265,7 @@ namespace Solver
             return false;
         }
 
-        private static int GetEqualIndex(EquationComponent[] components)
+        public static int GetEqualIndex(EquationComponent[] components)
         {
             int equalIndex = 0;
             for (int i = 0; i < components.Length; i++)

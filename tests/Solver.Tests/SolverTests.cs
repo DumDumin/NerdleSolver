@@ -28,20 +28,7 @@ namespace Solver.Tests
         [Test]
         public void Given_DigitCountThree_When_CountValidGuesses_ReturnTen()
         {
-            Solver.CountValidGuesses(3).Should().Be(10);
-        }
-
-        [Test]
-        [Ignore("No Default Guess implemented right now")]
-        public void Given_NoInformation_When_Solve_Then_Return_DefaultGuess()
-        {
-            EquationComponent[] components = new EquationComponent[] {
-                Nine, Add, Eight, Substract, Five, Equal, One, Two};
-
-            Equation expected = new Equation(components);
-            Equation guess = Solver.Guess(new List<EquationComponent[]>());
-
-            guess.Should().BeEquivalentTo(expected);
+            Solver.CreateAllValidPossibilities(3).Count.Should().Be(10);
         }
     }
 }

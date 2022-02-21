@@ -2,16 +2,46 @@ using static Solver.EquationComponent;
 
 namespace Solver
 {
-    public static class Solver
+    public class Solver
     {
-        private static Random rnd = new Random();
-        public static Equation Guess(List<EquationComponent[]> possibilities)
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private readonly IGuesser guesser;
+        private readonly List<EquationComponent[]> allPossibilities;
+
+        public Solver(IGuesser guesser, List<EquationComponent[]> allPossibilities)
         {
-            int index = rnd.Next(0, possibilities.Count-1);
-            return new Equation(possibilities[index]);
+            this.guesser = guesser;
+            this.allPossibilities = allPossibilities;
         }
 
-        public static Equation Solve(int digitCount, Func<Equation, EquationComparison> compare, out int tries)
+        public Equation Solve(Func<Equation, EquationComparison> compare, out int tries)
+        {
+            List<EquationComponent[]> possibilities = new List<EquationComponent[]>(allPossibilities);
+
+            List<EquationComparison> comparisons = new List<EquationComparison>();
+            while (comparisons.Count < 10)
+            {
+                Equation guess = guesser.Guess(possibilities, comparisons.Count);
+                EquationComparison comparison = compare(guess);
+                comparisons.Add(comparison);
+                if (comparison.Comparison.All(c => c == ComparisonStatus.Correct))
+                {
+                    tries = comparisons.Count;
+                    return guess;
+                }
+                else
+                {
+                    logger.Info($"{guess} out of {possibilities.Count} possibilities");
+                }
+
+                possibilities = Equation.Filter(possibilities, comparison);
+            }
+
+            throw new Exception($"Unable to find a solution in {comparisons.Count} tries");
+        }
+
+        public static List<EquationComponent[]> CreateAllValidPossibilities(int digitCount)
         {
             // Enum count = 15
             // Possible places = 8
@@ -35,52 +65,31 @@ namespace Solver
                     }
                 }
             });
-
-            List<EquationComparison> comparisons = new List<EquationComparison>();
-            while(comparisons.Count < digitCount)
-            {
-                Equation guess = Guess(possibilities);
-                EquationComparison comparison = compare(guess);
-                comparisons.Add(comparison);
-                if(comparison.Comparison.All(c => c == ComparisonStatus.Correct))
-                {
-                    tries = comparisons.Count;
-                    return guess;
-                }
-                else
-                {
-                    Console.WriteLine($"{guess} out if {possibilities.Count} possibilities");
-                }
-
-                possibilities = Equation.Filter(possibilities, comparison);
-            }
-
-            throw new Exception($"Unable to find a solution in {comparisons.Count} tries");
+            return possibilities;
         }
 
-        public static long CountValidGuesses(int digitCount)
+        public static Dictionary<EquationComponent, int> CountComponents(List<EquationComponent[]> possibilities)
         {
-            // Enum count = 15
-            // Possible places = 8
-            // => 15^8 => base 15 system
-            var componentCount = Enum.GetNames(typeof(EquationComponent)).Length;
-            long allPossibilities = (long)Math.Pow(componentCount, digitCount);
-
-            long validEquationCount = 0;
-            Parallel.For(0, allPossibilities, (i) =>
+            Dictionary<EquationComponent, int> result = new Dictionary<EquationComponent, int>();
+            foreach (EquationComponent item in Enum.GetValues(typeof(EquationComponent)))
             {
-                EquationComponent[] components = GenerateComponents(i, digitCount);
-
-                if (Equation.ValidateSyntax(components))
+                result.Add(item, 0);
+            }
+            foreach (var eq in possibilities)
+            {
+                // foreach (EquationComponent item in eq)
+                // {
+                //     result[item]++;
+                // }
+                foreach (EquationComponent item in Enum.GetValues(typeof(EquationComponent)))
                 {
-                    if (Equation.Validate(components))
+                    if(eq.Contains(item))
                     {
-                        Interlocked.Increment(ref validEquationCount);
+                        result[item]++;
                     }
                 }
-            });
-
-            return validEquationCount;
+            }
+            return result;
         }
 
         public static EquationComponent[] GenerateComponents(long equationNumber, int digitCount)
