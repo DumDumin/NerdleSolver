@@ -13,12 +13,17 @@ namespace Solver
         {
             if (!ValidateSyntax(components))
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"Syntax is not valid: {FormatAsString(components)}");
+            }
+            else if (!Validate(components))
+            {
+                throw new ArgumentException($"Does not compute: {FormatAsString(components)}");
             }
 
             this.components = components;
         }
 
+        // TODO return equal if next component is a number
         private static EquationComponent GetNextOperator(EquationComponent[] components, ref int index)
         {
             EquationComponent firstOp = Equal;
@@ -142,6 +147,19 @@ namespace Solver
             return number;
         }
 
+        private static EquationComponent[] FromNumber(int number)
+        {
+            string digits = "";
+            while (true)
+            {
+                digits = (number % 10).ToString() + digits;
+                number = number / 10;
+                if (number == 0)
+                    break;
+            }
+            return ComponentsFromString(digits);
+        }
+
         public static bool IsOperator(EquationComponent component)
         {
             if (component == Equal || component == Add || component == Substract || component == Multiply || component == Divide)
@@ -252,17 +270,24 @@ namespace Solver
 
         public static bool Validate(EquationComponent[] components)
         {
-            int equalIndex = GetEqualIndex(components);
-
-            long leftside = Calculate(components, 0, equalIndex, out bool validLeft);
-            long rightside = Calculate(components, equalIndex + 1, components.Length, out bool validRight);
-
-            if (leftside == rightside && validRight && validLeft)
+            try
             {
-                return true;
-            }
+                int equalIndex = GetEqualIndex(components);
 
-            return false;
+                long leftside = Calculate(components.Skip(0).Take(equalIndex).ToArray(), out bool validLeft);
+                long rightside = Calculate(components.Skip(equalIndex + 1).Take(components.Length - equalIndex + 1).ToArray(), out bool validRight);
+
+                if (leftside == rightside && validRight && validLeft)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (System.Exception e)
+            {
+                throw new Exception($"Failed on {FormatAsString(components)}", e);
+            }
         }
 
         public static int GetEqualIndex(EquationComponent[] components)
@@ -280,69 +305,169 @@ namespace Solver
             return equalIndex;
         }
 
-        private static long Calculate(EquationComponent[] components, int startIndex, int endIndex, out bool valid)
+        private static EquationComponent[] ComponentsFromString(string eq)
         {
-            if (components.Length > startIndex && startIndex < endIndex)
+            EquationComponent[] components = new EquationComponent[eq.Length];
+            for (int i = 0; i < eq.Length; i++)
             {
-                valid = true;
-                if (IsOperator(components[startIndex]))
+                if (eq[i] == '=') components[i] = Equal;
+
+                else if (eq[i] == '+') components[i] = Add;
+                else if (eq[i] == '-') components[i] = Substract;
+                else if (eq[i] == '*') components[i] = Multiply;
+                else if (eq[i] == '/') components[i] = Divide;
+
+                else if (eq[i] == '0') components[i] = Zero;
+                else if (eq[i] == '1') components[i] = One;
+                else if (eq[i] == '2') components[i] = Two;
+                else if (eq[i] == '3') components[i] = Three;
+                else if (eq[i] == '4') components[i] = Four;
+                else if (eq[i] == '5') components[i] = Five;
+                else if (eq[i] == '6') components[i] = Six;
+                else if (eq[i] == '7') components[i] = Seven;
+                else if (eq[i] == '8') components[i] = Eight;
+                else if (eq[i] == '9') components[i] = Nine;
+
+                else throw new NotImplementedException($"{eq[i]} cannot be parsed");
+            }
+            return components;
+        }
+
+        public static Equation FromString(string eq)
+        {
+            return new Equation(ComponentsFromString(eq));
+        }
+
+        private static int GetPreviousNumber(EquationComponent[] components, ref int index)
+        {
+            int number = 0;
+            int idx = index;
+            for (int i = 0; i <= idx; i++)
+            {
+                if (!IsOperator(components[idx - i]))
                 {
-                    EquationComponent op = GetNextOperator(components, ref startIndex);
-                    long result = GetNextNumber(components, ref startIndex);
-                    if (op == Substract)
-                        result = -result;
-                    result = Calculate(components, result, startIndex, endIndex, out valid);
-                    return result;
+                    number = number + (int)components[idx - i] * (int)Math.Pow(10, i);
+                    index--;
                 }
                 else
                 {
-                    long result = GetNextNumber(components, ref startIndex);
-                    result = Calculate(components, result, startIndex, endIndex, out valid);
-                    return result;
+                    break;
                 }
+            }
+            return number;
+        }
+
+
+        public static EquationComponent[] Substitute(EquationComponent[] components, out bool valid)
+        {
+            int opIndex = 0;
+            valid = true;
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (IsOperator(components[i]) && (components[i] == Multiply || components[i] == Divide))
+                {
+                    opIndex = i;
+                    break;
+                }
+            }
+            var op = components[opIndex];
+
+            if (op == Multiply || op == Divide)
+            {
+                int prevIndex = opIndex - 1;
+                int nextIndex = opIndex + 1;
+                var previous = GetPreviousNumber(components, ref prevIndex);
+                prevIndex++; // we need to increment it again, to get the index of the previous number starting
+                var next = GetNextNumber(components, ref nextIndex);
+                int result;
+                if (op == Multiply)
+                    result = previous * next;
+                else
+                {
+                    var rest = previous % next;
+                    if (rest != 0)
+                    {
+                        // End calculation of division is not valid
+                        valid = false;
+                        return components;
+                    }
+                    else
+                    {
+                        result = previous / next;
+                    }
+                }
+
+
+                EquationComponent[] calc = FromNumber(result);
+                EquationComponent[] sub = new EquationComponent[prevIndex + calc.Length + components.Length - nextIndex];
+                for (int i = 0; i < prevIndex; i++)
+                {
+                    sub[i] = components[i];
+                }
+                for (int i = prevIndex; i < prevIndex + calc.Length; i++)
+                {
+                    sub[i] = calc[i - prevIndex];
+                }
+                for (int i = nextIndex; i < components.Length; i++)
+                {
+                    sub[prevIndex + calc.Length + i - nextIndex] = components[i];
+                }
+
+                if (nextIndex < components.Length && IsOperator(components[nextIndex]))
+                    components = Substitute(sub, out valid);
+                else
+                    components = sub;
+            }
+            return components;
+        }
+
+        private static long Calculate(EquationComponent[] components, out bool valid)
+        {
+            int startIndex = 0;
+            valid = true;
+            if (IsOperator(components[startIndex]))
+            {
+                EquationComponent op = GetNextOperator(components, ref startIndex);
+                components = Substitute(components.Skip(startIndex).ToArray(), out valid);
+                startIndex = 0;
+                long result = GetNextNumber(components, ref startIndex);
+                if (!valid)
+                    return result;
+                if (op == Substract)
+                    result = -result;
+                result = Calculate(components, result, startIndex, components.Length - 1, out valid);
+                return result;
             }
             else
             {
-                valid = false;
-                throw new NotImplementedException();
+                components = Substitute(components, out valid);
+                long result = GetNextNumber(components, ref startIndex);
+                if (!valid)
+                    return result;
+                result = Calculate(components, result, startIndex, components.Length - 1, out valid);
+                return result;
             }
         }
 
         private static long Calculate(EquationComponent[] components, long result, int startIndex, int endIndex, out bool valid)
         {
             valid = true;
-            if (startIndex == endIndex) return result;
+            if (startIndex >= endIndex) return result;
 
             var op = GetNextOperator(components, ref startIndex);
             if (op == Add)
             {
-                result += Calculate(components, startIndex, endIndex, out valid);
+                result += GetNextNumber(components, ref startIndex);
+                result = Calculate(components, result, startIndex, endIndex, out valid);
             }
             else if (op == Substract)
             {
-                result -= Calculate(components, startIndex, endIndex, out valid);
-            }
-            else if (op == Multiply)
-            {
-                result *= GetNextNumber(components, ref startIndex);
-                result = Calculate(components, result, startIndex, endIndex, out valid);
-            }
-            else if (op == Divide)
-            {
-                var number = GetNextNumber(components, ref startIndex);
-                var rest = result % number;
-                if (rest != 0)
-                {
-                    // End calculation of division is not valid
-                    valid = false;
-                    return long.MaxValue;
-                }
-                result /= number;
+                result -= GetNextNumber(components, ref startIndex);
                 result = Calculate(components, result, startIndex, endIndex, out valid);
             }
             else
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException($"{op} was unexpected. {Equation.FormatAsString(components)}");
             }
 
             return result;
@@ -395,6 +520,11 @@ namespace Solver
         }
 
         public override string ToString()
+        {
+            return FormatAsString(components);
+        }
+
+        public static string FormatAsString(EquationComponent[] components)
         {
             string result = "";
             foreach (var component in components)

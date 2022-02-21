@@ -13,7 +13,7 @@ namespace Solver.Tests
             EightDigitFixedGuesser guesser = new EightDigitFixedGuesser(new List<EquationComponent[]>());
 
             Equation guess = guesser.Guess(new List<EquationComponent[]>(), 0);
-            guess.Should().Be(new Equation(new EquationComponent[] { Eight, Divide, Four, Multiply, Three, Equal, Zero, Six }));
+            guess.Should().Be(new Equation(new EquationComponent[] {Five,Three,Add,One,Equal,Nine,Multiply,Six}));
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace Solver.Tests
             EightDigitFixedGuesser guesser = new EightDigitFixedGuesser(new List<EquationComponent[]>());
 
             Equation guess = guesser.Guess(new List<EquationComponent[]>(), 1);
-            guess.Should().Be(new Equation(new EquationComponent[] { Nine, Equal, Two, One, Substract, Seven, Add, Five }));
+            guess.Should().Be(new Equation(new EquationComponent[] {Two,Eight,Divide,Seven,Equal,Four,Substract,Zero}));
         }
 
         [Test]

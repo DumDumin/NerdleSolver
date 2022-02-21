@@ -27,6 +27,14 @@ namespace Solver.Tests
         }
 
         [Test]
+        public void Given_MultiplyAsLastOperatorAndNotValid_When_Validate_Then_Return_FalseAAAA()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Nine,Equal,Two,One,Substract,Seven,Add,Five};
+            Equation.Validate(components).Should().BeFalse();
+        }
+
+        [Test]
         public void Given_MultiplyAsLastOperatorAndValid_When_Validate_Then_Return_True()
         {
             EquationComponent[] components = new EquationComponent[] {
@@ -261,7 +269,7 @@ namespace Solver.Tests
             EquationComponent[] componentsOne = new EquationComponent[] {
                 Four, Divide, Two, Multiply, Four, Equal, Eight};
             EquationComponent[] componentsTwo = new EquationComponent[] {
-                Four, Multiply, Two, Divide, Four, Equal, Eight};
+                Four, Multiply, Two, Divide, Four, Equal, Two};
 
             Equation equationOne = new Equation(componentsOne);
             Equation equationTwo = new Equation(componentsTwo);
@@ -273,12 +281,94 @@ namespace Solver.Tests
                     ComparisonStatus.WrongPlace,
                     ComparisonStatus.Correct,
                     ComparisonStatus.Correct,
-                    ComparisonStatus.Correct
+                    ComparisonStatus.False
                 };
 
             var result = equationOne.Compare(equationTwo);
             
             result.Comparison.Should().ContainInOrder(expected);
+        }
+
+        [Test]
+        public void Given_CompareString_When_CreateFromString_Then_Created()
+        {
+            Equation eq = new Equation(new EquationComponent[] {Two, Equal, Two});
+            EquationComparison comp = EquationComparison.FromString("012", eq);
+            comp.Should().BeEquivalentTo(new EquationComparison(eq, new List<ComparisonStatus>(){ComparisonStatus.False, ComparisonStatus.Correct, ComparisonStatus.WrongPlace}));
+        }
+
+        [Test]
+        public void Given_InvalidCompareString_When_CreateFromString_Then_Throw()
+        {
+            Equation eq = new Equation(new EquationComponent[] {Two, Equal, Two});
+            Action act = () => EquationComparison.FromString("3", eq);
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        public void Given_ValidString_When_CreateEquation_Then_Created()
+        {
+            string eq = "1+1+2=04";
+            Equation equation = Equation.FromString(eq);
+            equation.Should().Be(new Equation(new EquationComponent[] {
+                One, Add, One, Add, Two, Equal, Zero, Four}));
+        }
+
+        [Test]
+        public void Given_MultiplyThenAdd_When_Substitute_Then_Return_NewEquation()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                One, Multiply, One, Add, One};
+
+            EquationComponent[] expected = new EquationComponent[] {
+                One, Add, One};
+
+            Equation.Substitute(components, out bool valid).Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Given_AddThenMultiply_When_Substitute_Then_Return_NewEquation()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                One, Add, One, Multiply, One};
+
+            EquationComponent[] expected = new EquationComponent[] {
+                One, Add, One};
+
+            Equation.Substitute(components, out bool valid).Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Given_MultiplyThenMultiplyThenAdd_When_Substitute_Then_Return_NewEquation()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                One, Multiply, One, Multiply, One, Add, One};
+
+            EquationComponent[] expected = new EquationComponent[] {
+                One, Add, One};
+
+            Equation.Substitute(components, out bool valid).Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Given_DivideThenMultiplyThenAdd_When_Substitute_Then_Return_NewEquation()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                One, Divide, One, Multiply, One, Add, One};
+
+            EquationComponent[] expected = new EquationComponent[] {
+                One, Add, One};
+
+            Equation.Substitute(components, out bool valid).Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Given_InvalidEquation_When_Validate_Then_ReturnFalse()
+        {
+            EquationComponent[] components = new EquationComponent[] {
+                Add, Three, Multiply, Zero, Three, Four, Equal, Zero };
+
+            Equation.Validate(components).Should().BeFalse();
         }
     }
 }

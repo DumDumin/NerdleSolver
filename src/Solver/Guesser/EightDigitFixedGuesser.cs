@@ -14,9 +14,9 @@ namespace Solver
         public Equation Guess(List<EquationComponent[]> remainingPossibilities, int tryCount)
         {
             if(tryCount == 0)
-                return new Equation(new EquationComponent[]{Eight,Divide,Four,Multiply,Three,Equal,Zero,Six});
+                return new Equation(new EquationComponent[]{Five,Three,Add,One,Equal,Nine,Multiply,Six});
             else if(tryCount == 1)
-                return new Equation(new EquationComponent[]{Nine,Equal,Two,One,Substract,Seven,Add,Five});
+                return new Equation(new EquationComponent[]{Two,Eight,Divide,Seven,Equal,Four,Substract,Zero});
             else
                 return new Equation(remainingPossibilities
                     .OrderByDescending(components => components.Distinct().Count())
