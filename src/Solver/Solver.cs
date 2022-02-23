@@ -35,7 +35,7 @@ public class Solver
                 logger.Info($"{guess} out of {possibilities.Count} possibilities");
             }
 
-            possibilities = Equation.Filter(possibilities, comparison);
+            possibilities = possibilities.Filter(comparison);
         }
 
         throw new Exception($"Unable to find a solution in {comparisons.Count} tries");
@@ -54,9 +54,9 @@ public class Solver
         {
             EquationComponent[] components = GenerateComponents(i, digitCount);
 
-            if (Equation.ValidateSyntax(components))
+            if (components.ValidateSyntax())
             {
-                if (Equation.Validate(components))
+                if (components.Validate())
                 {
                     lock (possibilities)
                     {

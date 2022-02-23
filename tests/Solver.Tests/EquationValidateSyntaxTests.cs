@@ -6,14 +6,14 @@ using static Solver.EquationComponent;
 
 namespace Solver.Tests;
 
-public class EquationSyntaxTests
+public class EquationValidateSyntaxTests
 {
 
     [Test]
     public void Given_NotAllowedEquation_When_Validate_Then_ReturnFalse()
     {
         EquationComponent[] components = new EquationComponent[0];
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -21,7 +21,7 @@ public class EquationSyntaxTests
     {
         EquationComponent[] components = new EquationComponent[] {
                 One, Divide, Zero, Equal, One};
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -29,7 +29,7 @@ public class EquationSyntaxTests
     {
         EquationComponent[] components = new EquationComponent[] {
                 One, Divide, One, Divide, Zero, Equal, One};
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class EquationSyntaxTests
     {
         EquationComponent[] components = new EquationComponent[] {
                 Multiply, One, Equal, One};
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class EquationSyntaxTests
         {
                 Divide, One, Equal, One
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class EquationSyntaxTests
         {
                 Equal, One
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class EquationSyntaxTests
         {
                 Add, One, Equal, One
         };
-        Equation.ValidateSyntax(components).Should().BeTrue();
+        components.ValidateSyntax().Should().BeTrue();
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class EquationSyntaxTests
         {
                 Substract, One, Add, One, Equal, Zero
         };
-        Equation.ValidateSyntax(components).Should().BeTrue();
+        components.ValidateSyntax().Should().BeTrue();
     }
 
     [Test]
@@ -87,7 +87,7 @@ public class EquationSyntaxTests
         {
                 Zero, Add, Equal, Zero
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class EquationSyntaxTests
         {
                 Zero, Equal, Add, Zero
         };
-        Equation.ValidateSyntax(components).Should().BeTrue();
+        components.ValidateSyntax().Should().BeTrue();
     }
 
     [Test]
@@ -107,7 +107,7 @@ public class EquationSyntaxTests
         {
                 Zero, Equal, Substract, Zero
         };
-        Equation.ValidateSyntax(components).Should().BeTrue();
+        components.ValidateSyntax().Should().BeTrue();
     }
 
     [Test]
@@ -117,7 +117,7 @@ public class EquationSyntaxTests
         {
                 Zero, Equal, Multiply, Zero
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class EquationSyntaxTests
         {
                 Zero, Equal, Divide, One
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -137,7 +137,7 @@ public class EquationSyntaxTests
         {
                 One, Add, One, Equal, Two, Substract
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -147,7 +147,7 @@ public class EquationSyntaxTests
         {
                 One, Equal, One, Equal, One
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -157,7 +157,7 @@ public class EquationSyntaxTests
         {
                 One, Add, Divide, One, Equal, One
         };
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -165,7 +165,7 @@ public class EquationSyntaxTests
     {
         EquationComponent[] components = new EquationComponent[] {
                 One, Multiply, Divide, One, Equal, One};
-        Equation.ValidateSyntax(components).Should().BeFalse();
+        components.ValidateSyntax().Should().BeFalse();
     }
 
     [Test]
@@ -174,6 +174,6 @@ public class EquationSyntaxTests
         EquationComponent[] components = new EquationComponent[] {
                 Four, Divide, Two, Multiply, Four, Equal, Eight};
 
-        Equation.FormatAsString(components).Should().Be("4/2*4=8");
+        components.FormatAsString().Should().Be("4/2*4=8");
     }
 }

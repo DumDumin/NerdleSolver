@@ -1,6 +1,5 @@
 ﻿using NLog;
 using static Solver.EquationComponent;
-
 namespace Solver;
 
 internal class Program
@@ -20,19 +19,19 @@ internal class Program
         IGuesser guesser = new EightDigitFixedGuesser(possibilities);
         Solver solver = new Solver(guesser, possibilities);
         EquationComponent[] solution = solver.Solve(CompareHuman, out int tries);
-        Console.WriteLine($"Solved {Equation.FormatAsString(solution)} in {tries} tries");
+        Console.WriteLine($"Solved {solution.FormatAsString()} in {tries} tries");
 
         // possibilities = PrintPairsOfGoodFirstAndSecondTry(possibilities);
     }
 
-    private static List<EquationComponent[]> PrintPairsOfGoodFirstAndSecondTry(List<EquationComponent[]> possibilities)
+    private static IEnumerable<EquationComponent[]> PrintPairsOfGoodFirstAndSecondTry(IEnumerable<EquationComponent[]> possibilities)
     {
-        possibilities = Equation.Filter(possibilities, new List<Rule>()
+        possibilities = possibilities.Filter(new List<Rule>()
             {
-                (EquationComponent[] eq) => eq.Distinct().Count(c => Equation.IsOperator(c)) == 3,
-                (EquationComponent[] eq) => eq.Distinct().Count(c => !Equation.IsOperator(c)) == 5,
+                (EquationComponent[] eq) => eq.Distinct().Count(c => c.IsOperator()) == 3,
+                (EquationComponent[] eq) => eq.Distinct().Count(c => !c.IsOperator()) == 5,
             });
-        Console.WriteLine($"{possibilities.Count} possibibilities");
+        Console.WriteLine($"{possibilities.Count()} possibibilities");
 
         int counter = 0;
         foreach (var possibility in possibilities)
@@ -40,19 +39,19 @@ internal class Program
             // filter all elements that are present in the current possibility
             var distinct = possibility.Distinct();
             var rules = new List<Rule>();
-            rules.Add((EquationComponent[] eq) => Equation.GetEqualIndex(possibility) == Equation.GetEqualIndex(eq));
+            rules.Add((EquationComponent[] eq) => possibility.GetEqualIndex() == eq.GetEqualIndex());
             foreach (var item in distinct.Where(c => c != Equal))
             {
                 rules.Add((EquationComponent[] eq) => eq.Count(c => c == item) == 0);
             }
 
-            var filtered = Equation.Filter(possibilities, rules);
+            var filtered = possibilities.Filter(rules);
             foreach (var item in filtered)
             {
-                Console.WriteLine(Equation.FormatAsString(possibility));
-                Console.WriteLine(Equation.FormatAsString(item));
+                Console.WriteLine(possibility.FormatAsString());
+                Console.WriteLine(item.FormatAsString());
             }
-            counter += filtered.Count;
+            counter += filtered.Count();
         }
         Console.WriteLine($"Found {counter} pairs");
         return possibilities;

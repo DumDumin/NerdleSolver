@@ -26,11 +26,8 @@ public class EquationFilterTests
         EquationComponent[] componentTwo = new EquationComponent[] {
                 One, Substract, One, Equal, Zero};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne, componentTwo },
-            comparison
-        ).Should().BeEquivalentTo(new List<EquationComponent[]>() { componentOne });
+        new List<EquationComponent[]>() { componentOne, componentTwo }
+            .Filter(comparison).Should().BeEquivalentTo(new List<EquationComponent[]>() { componentOne });
     }
 
     [Test]
@@ -48,9 +45,8 @@ public class EquationFilterTests
         EquationComponent[] componentTwo = new EquationComponent[] {
                 One, Add, One, Add, Five, Equal, Six};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne, componentTwo },
+        new List<EquationComponent[]>() {
+                    componentOne, componentTwo }.Filter(
             comparison
         ).Should().BeEquivalentTo(new List<EquationComponent[]>());
     }
@@ -69,9 +65,8 @@ public class EquationFilterTests
         EquationComponent[] componentOne = new EquationComponent[] {
                 One, Add, One, Add, Four, Equal, Six};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne },
+        new List<EquationComponent[]>() {
+                    componentOne }.Filter(
             comparison
         ).Should().BeEquivalentTo(new List<EquationComponent[]>());
     }
@@ -91,9 +86,8 @@ public class EquationFilterTests
         EquationComponent[] componentTwo = new EquationComponent[] {
                 Three, Add, One, Add, Two, Equal, Six};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne, componentTwo },
+        new List<EquationComponent[]>() {
+                    componentOne, componentTwo }.Filter(
             comparison
         ).Should().BeEquivalentTo(new List<EquationComponent[]>() { componentOne, componentTwo });
     }
@@ -112,9 +106,8 @@ public class EquationFilterTests
         EquationComponent[] componentOne = new EquationComponent[] {
                 One, Add, Two, Add, Eight, Multiply, Eight, Equal, Six, Seven};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne },
+        new List<EquationComponent[]>() {
+                    componentOne }.Filter(
             comparison
         ).Should().BeEquivalentTo(new List<EquationComponent[]>() { });
     }
@@ -133,9 +126,8 @@ public class EquationFilterTests
         EquationComponent[] componentOne = new EquationComponent[] {
                 Zero, Zero, Add, Zero, Equal, Five, Substract, Five};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() {
-                    componentOne },
+        new List<EquationComponent[]>() {
+                    componentOne }.Filter(
             comparison
         ).Should().BeEquivalentTo(new List<EquationComponent[]>() { componentOne });
     }
@@ -148,8 +140,7 @@ public class EquationFilterTests
         EquationComponent[] componentTwo = new EquationComponent[] {
                 One, Add, Two, Add, Eight, Equal, One, One};
 
-        Equation.Filter(
-            new List<EquationComponent[]>() { componentOne, componentTwo },
+        new List<EquationComponent[]>() { componentOne, componentTwo }.Filter(
             new List<Func<EquationComponent[], bool>>() {
                     Rules.ContainsNoZeros
             }
