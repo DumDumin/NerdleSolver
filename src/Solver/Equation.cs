@@ -56,7 +56,7 @@ namespace Solver
             throw new ArgumentException("Could not find an operator with a following digit");
         }
 
-        public static List<EquationComponent[]> Filter(List<EquationComponent[]> equations, IEnumerable<Func<EquationComponent[], bool>> rules)
+        public static List<EquationComponent[]> Filter(List<EquationComponent[]> equations, IEnumerable<Rule> rules)
         {
             return equations.Where(eq => rules.All(rule => rule(eq))).ToList();
         }
