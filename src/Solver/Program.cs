@@ -70,7 +70,7 @@ internal class Program
     static EquationComparison CompareHuman(EquationComponent[] guess)
     {
         // the user has to put this guess into nerdlegame.com
-        Console.WriteLine(guess);
+        Console.WriteLine(guess.FormatAsString());
 
         // the user has type in the feedback
         string? input = Console.ReadLine();
