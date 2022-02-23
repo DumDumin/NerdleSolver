@@ -1,82 +1,80 @@
 ﻿using NLog;
 using static Solver.EquationComponent;
 
-namespace Solver
+namespace Solver;
+
+internal class Program
 {
-    internal class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            var config = new NLog.Config.LoggingConfiguration();
-            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
-            config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
-            NLog.LogManager.Configuration = config;
+        var config = new NLog.Config.LoggingConfiguration();
+        var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+        config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
+        NLog.LogManager.Configuration = config;
 
-            Console.Write("Creating possibilities...");
-            List<EquationComponent[]> possibilities = Solver.CreateAllValidPossibilities(8);
-            Console.WriteLine($"Created {possibilities.Count}");
+        Console.Write("Creating possibilities...");
+        List<EquationComponent[]> possibilities = Solver.CreateAllValidPossibilities(8);
+        Console.WriteLine($"Created {possibilities.Count}");
 
-            Console.WriteLine("Solving...");
-            IGuesser guesser = new EightDigitFixedGuesser(possibilities);
-            Solver solver = new Solver(guesser, possibilities);
-            Equation solution = solver.Solve(CompareHuman, out int tries);
-            Console.WriteLine($"Solved {solution} in {tries} tries");
+        Console.WriteLine("Solving...");
+        IGuesser guesser = new EightDigitFixedGuesser(possibilities);
+        Solver solver = new Solver(guesser, possibilities);
+        EquationComponent[] solution = solver.Solve(CompareHuman, out int tries);
+        Console.WriteLine($"Solved {Equation.FormatAsString(solution)} in {tries} tries");
 
-            // possibilities = PrintPairsOfGoodFirstAndSecondTry(possibilities);
-        }
+        // possibilities = PrintPairsOfGoodFirstAndSecondTry(possibilities);
+    }
 
-        private static List<EquationComponent[]> PrintPairsOfGoodFirstAndSecondTry(List<EquationComponent[]> possibilities)
-        {
-            possibilities = Equation.Filter(possibilities, new List<Rule>()
+    private static List<EquationComponent[]> PrintPairsOfGoodFirstAndSecondTry(List<EquationComponent[]> possibilities)
+    {
+        possibilities = Equation.Filter(possibilities, new List<Rule>()
             {
                 (EquationComponent[] eq) => eq.Distinct().Count(c => Equation.IsOperator(c)) == 3,
                 (EquationComponent[] eq) => eq.Distinct().Count(c => !Equation.IsOperator(c)) == 5,
             });
-            Console.WriteLine($"{possibilities.Count} possibibilities");
+        Console.WriteLine($"{possibilities.Count} possibibilities");
 
-            int counter = 0;
-            foreach (var possibility in possibilities)
+        int counter = 0;
+        foreach (var possibility in possibilities)
+        {
+            // filter all elements that are present in the current possibility
+            var distinct = possibility.Distinct();
+            var rules = new List<Rule>();
+            rules.Add((EquationComponent[] eq) => Equation.GetEqualIndex(possibility) == Equation.GetEqualIndex(eq));
+            foreach (var item in distinct.Where(c => c != Equal))
             {
-                // filter all elements that are present in the current possibility
-                var distinct = possibility.Distinct();
-                var rules = new List<Rule>();
-                rules.Add((EquationComponent[] eq) => Equation.GetEqualIndex(possibility) == Equation.GetEqualIndex(eq));
-                foreach (var item in distinct.Where(c => c != Equal))
-                {
-                    rules.Add((EquationComponent[] eq) => eq.Count(c => c == item) == 0);
-                }
-
-                var filtered = Equation.Filter(possibilities, rules);
-                foreach (var item in filtered)
-                {
-                    Console.WriteLine(new Equation(possibility));
-                    Console.WriteLine(new Equation(item));
-                }
-                counter += filtered.Count;
+                rules.Add((EquationComponent[] eq) => eq.Count(c => c == item) == 0);
             }
-            Console.WriteLine($"Found {counter} pairs");
-            return possibilities;
-        }
 
-        static Equation eq = new Equation(new EquationComponent[]
-        {
+            var filtered = Equation.Filter(possibilities, rules);
+            foreach (var item in filtered)
+            {
+                Console.WriteLine(Equation.FormatAsString(possibility));
+                Console.WriteLine(Equation.FormatAsString(item));
+            }
+            counter += filtered.Count;
+        }
+        Console.WriteLine($"Found {counter} pairs");
+        return possibilities;
+    }
+
+    static EquationComponent[] eq = new EquationComponent[]
+    {
             Add, Three, Add, Three, Multiply, Zero, Equal, Three
-        });
+    };
 
-        static EquationComparison Compare(Equation equation)
-        {
-            return eq.Compare(equation);
-        }
+    static EquationComparison Compare(EquationComponent[] equation)
+    {
+        return eq.Compare(equation);
+    }
 
-        static EquationComparison CompareHuman(Equation guess)
-        {
-            // the user has to put this guess into nerdlegame.com
-            Console.WriteLine(guess);
+    static EquationComparison CompareHuman(EquationComponent[] guess)
+    {
+        // the user has to put this guess into nerdlegame.com
+        Console.WriteLine(guess);
 
-            // the user has type in the feedback
-            string? input = Console.ReadLine();
-            return EquationComparison.FromString(input, guess);
-        }
+        // the user has type in the feedback
+        string? input = Console.ReadLine();
+        return EquationComparison.FromString(input, guess);
     }
 }
-

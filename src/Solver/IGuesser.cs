@@ -1,7 +1,6 @@
-namespace Solver
+namespace Solver;
+
+public interface IGuesser
 {
-    public interface IGuesser
-    {
-        Equation Guess(List<EquationComponent[]> remainingPossibilities, int tryCount);
-    }
+    EquationComponent[] Guess(List<EquationComponent[]> remainingPossibilities, int tryCount);
 }

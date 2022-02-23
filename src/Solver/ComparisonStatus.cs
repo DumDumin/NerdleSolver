@@ -1,9 +1,8 @@
-namespace Solver
+namespace Solver;
+
+public enum ComparisonStatus
 {
-    public enum ComparisonStatus
-    {
-        Correct,
-        False,
-        WrongPlace
-    }
+    Correct,
+    False,
+    WrongPlace
 }
