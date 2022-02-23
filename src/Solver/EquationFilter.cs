@@ -14,56 +14,68 @@ public static class EquationFilter
         {
             List<EquationComponent> buffer = eq.ToList();
             // check every position of both equations
-            int counter = 0;
-            for (int i = 0; i < comparison.Comparison.Count; i++)
+            if (CheckCorrectAndWrongPlacedComponents(comparison, eq, buffer))
             {
-                if (comparison.Comparison[i] == ComparisonStatus.Correct)
+                if (!ContainsNotAllowedComponents(comparison, buffer))
                 {
-                    if (eq[i] != comparison.Equation[i])
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        // Remove the correct positioned component from the buffer
-                        // it cannot be used for wrong positioned components anymore
-                        buffer.Remove(eq[i]);
-                    }
+                    result.Add(eq);
                 }
-                else if (comparison.Comparison[i] == ComparisonStatus.WrongPlace)
-                {
-                    if (eq[i] == comparison.Equation[i])
-                    {
-                        break;
-                    }
-                    else if (!buffer.Contains(comparison.Equation[i]))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        // Remove the wrong positioned component from the buffer
-                        // it cannot be used for other wrong positioned components anymore
-                        buffer.Remove(comparison.Equation[i]);
-                    }
-                }
-                counter++;
-            }
-            // False positions must be checked after all wrongplaces are checked
-            for (int i = 0; i < comparison.Comparison.Count; i++)
-            {
-                if (comparison.Comparison[i] == ComparisonStatus.False && buffer.Contains(comparison.Equation[i]))
-                {
-                    counter--;
-                    break;
-                }
-            }
-            if (counter == comparison.Comparison.Count)
-            {
-                result.Add(eq);
             }
         }
         return result;
     }
 
+    private static bool ContainsNotAllowedComponents(EquationComparison comparison, List<EquationComponent> buffer)
+    {
+        // False positions must be checked after all wrongplaces are checked
+        for (int i = 0; i < comparison.Comparison.Count; i++)
+        {
+            if (comparison.Comparison[i] == ComparisonStatus.False && buffer.Contains(comparison.Equation[i]))
+            {
+                // TODO TEST return buffer.Contains(comparison.Equation[i])
+                // => test should fail
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool CheckCorrectAndWrongPlacedComponents(EquationComparison comparison, EquationComponent[] eq, List<EquationComponent> buffer)
+    {
+        for (int i = 0; i < comparison.Comparison.Count; i++)
+        {
+            if (comparison.Comparison[i] == ComparisonStatus.Correct)
+            {
+                if (eq[i] == comparison.Equation[i])
+                {
+                    // Remove the correct positioned component from the buffer
+                    // it cannot be used for wrong positioned components anymore
+                    buffer.Remove(eq[i]);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (comparison.Comparison[i] == ComparisonStatus.WrongPlace)
+            {
+                if (eq[i] == comparison.Equation[i])
+                {
+                    return false;
+                }
+                else if (!buffer.Contains(comparison.Equation[i]))
+                {
+                    return false;
+                }
+                else
+                {
+                    // Remove the wrong positioned component from the buffer
+                    // it cannot be used for other wrong positioned components anymore
+                    buffer.Remove(comparison.Equation[i]);
+                }
+            }
+        }
+
+        return true;
+    }
 }
