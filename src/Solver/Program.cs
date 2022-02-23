@@ -39,7 +39,7 @@ internal class Program
             // filter all elements that are present in the current possibility
             var distinct = possibility.Distinct();
             var rules = new List<Rule>();
-            rules.Add((EquationComponent[] eq) => possibility.GetEqualIndex() == eq.GetEqualIndex());
+            rules.Add((EquationComponent[] eq) => possibility.GetComponentIndex(Equal) == eq.GetComponentIndex(Equal));
             foreach (var item in distinct.Where(c => c != Equal))
             {
                 rules.Add((EquationComponent[] eq) => eq.Count(c => c == item) == 0);
